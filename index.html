@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" name="viewport"/>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Familiepot &amp; Kinderpot — Dashboard</title>
+<style>
+/* === CORE THEME VARIABLES === */
+:root {
+  --bg-dark: #05070a;
+  --text-main: #ffffff;
+  --text-muted: rgba(255,255,255,0.65);
+  --theme-primary: #3b82f6;
+  --theme-glow: rgba(59,130,246,0.5);
+  --theme-bg-grad: linear-gradient(135deg, #0f172a 0%, #020617 100%);
+  --card-bg: rgba(30, 41, 59, 0.6);
+  --card-border: rgba(148, 163, 184, 0.2);
+  --card-border-highlight: rgba(59,130,246, 0.4);
+}
+[data-pot="familie"] {
+  --theme-primary: #0ea5e9;
+  --theme-glow: rgba(14, 165, 233, 0.4);
+  --theme-bg-grad: radial-gradient(circle at 10% 20%, rgba(14, 165, 233, 0.15), transparent 40%), linear-gradient(180deg, #0b1120 0%, #02040a 100%);
+  --card-bg: linear-gradient(180deg, rgba(30, 41, 59, 0.7), rgba(15, 23, 42, 0.8));
+  --card-border: rgba(56, 189, 248, 0.25);
+  --card-border-highlight: #38bdf8;
+}
+[data-pot="kinder"] {
+  --theme-primary: #d946ef;
+  --theme-glow: rgba(217, 70, 239, 0.4);
+  --theme-bg-grad: radial-gradient(circle at 90% 20%, rgba(192, 38, 211, 0.15), transparent 40%), linear-gradient(180deg, #180d26 0%, #0a0312 100%);
+  --card-bg: linear-gradient(180deg, rgba(49, 15, 69, 0.7), rgba(28, 9, 40, 0.8));
+  --card-border: rgba(232, 121, 249, 0.25);
+  --card-border-highlight: #e879f9;
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+body { margin: 0; font-family: system-ui, -apple-system, sans-serif; background: var(--theme-bg-grad); color: var(--text-main); min-height: 100vh; transition: background 0.5s ease; }
+h1,h2,h3,h4 { margin: 0; font-weight: 800; letter-spacing: -0.5px; }
+button, select, input, textarea { font: inherit; outline: none; }
+.card, .tile, .bdayTile, .startTile, .panel, .miniTab {
+  background: var(--card-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid var(--card-border);
+  border-radius: 20px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4); position: relative; overflow: hidden; transition: transform 0.2s, border-color 0.3s;
+}
+.card::after, .tile::after, .bdayTile::after, .startTile::after {
+  content: ""; position: absolute; inset: 0; border-radius: 20px; padding: 1px;
+  background: linear-gradient(145deg, rgba(255,255,255,0.3), rgba(255,255,255,0));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none;
+}
+.tile:hover, .card:hover, .bdayTile:hover, .startTile:hover { border-color: var(--card-border-highlight); box-shadow: 0 0 15px var(--theme-glow); }
+.header { position: sticky; top: 0; z-index: 100; background: rgba(5, 7, 10, 0.85); backdrop-filter: blur(10px); border-bottom: 1px solid var(--card-border); }
+.header .row { display: flex; gap: 10px; padding: 12px; max-width: 1200px; margin: 0 auto; align-items: center; flex-wrap: wrap; }
+.hdrBtn, select { background: rgba(255,255,255,0.05); border: 1px solid var(--card-border); color: #fff; padding: 10px 14px; border-radius: 12px; font-weight: 700; cursor: pointer; }
+#hdrBeheer { background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%); border: 1px solid #f87171; box-shadow: 0 0 15px rgba(220, 38, 38, 0.4); text-shadow: 0 1px 2px rgba(0,0,0,0.4); }
+#hdrBeheer:hover { filter: brightness(1.15); box-shadow: 0 0 20px rgba(220, 38, 38, 0.6); }
+.badge { padding: 8px 12px; border-radius: 99px; font-size: 13px; background: rgba(0,0,0,0.3); border: 1px solid var(--card-border); color: var(--text-muted); }
+.badge b { color: var(--theme-primary); text-shadow: 0 0 10px var(--theme-glow); }
+#pot { display: none; }
+.wrap { max-width: 1200px; margin: 0 auto; padding: 16px; }
+.tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+@media(min-width: 700px){ .tiles { grid-template-columns: repeat(4, 1fr); } }
+.tile { padding: 16px; display: flex; flex-direction: column; justify-content: center; }
+.tile .lbl { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 6px; }
+.tile .big { font-size: 24px; font-weight: 900; color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+.cards { display: grid; gap: 12px; }
+@media(min-width: 800px){ .cards { grid-template-columns: 1fr 1fr; } }
+.card { padding: 16px; display: flex; justify-content: space-between; align-items: center; }
+.left b { display: block; font-size: 17px; margin-bottom: 4px; }
+.left .kids { font-size: 13px; color: var(--text-muted); }
+.right { text-align: right; }
+.right .amt { font-size: 16px; font-weight: 800; margin-bottom: 6px; }
+.pill { font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 99px; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+.pill.ok { background: #059669; color: #ecfdf5; border: 1px solid #34d399; }
+.pill.bad { background: #be123c; color: #fff1f2; border: 1px solid #fb7185; }
+.miniTabs { display: flex; gap: 10px; padding: 10px 16px; background: rgba(0,0,0,0.2); border-bottom: 1px solid var(--card-border); position: sticky; top: 65px; z-index: 90; backdrop-filter: blur(5px); }
+.miniTab { flex: 1; padding: 12px; text-align: center; font-weight: 800; cursor: pointer; background: transparent; border: 1px solid transparent; box-shadow: none; color: var(--text-muted); }
+.miniTab.active { background: rgba(255,255,255,0.1); border-color: var(--theme-primary); color: #fff; box-shadow: 0 0 15px var(--theme-glow) inset; }
+.sectionHead { display: flex; justify-content: space-between; align-items: baseline; margin: 20px 4px 12px; }
+.sectionTitle { font-size: 20px; color: var(--theme-primary); text-shadow: 0 0 10px var(--theme-glow); }
+.bdayGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
+.bdayTile { padding: 16px; text-align: center; border: 1px solid var(--theme-primary); }
+.bdayName { font-size: 18px; font-weight: 900; color: #fff; }
+.bdayDate { font-size: 13px; color: var(--text-muted); margin-bottom: 10px; }
+.bdayCountdown { background: rgba(0,0,0,0.4); padding: 4px 10px; border-radius: 8px; font-size: 12px; font-weight: 700; color: var(--theme-primary); display: inline-block; margin-bottom: 10px; border: 1px solid var(--card-border); }
+.bdayRow button { width: 100%; margin-top: 6px; font-size: 12px; padding: 8px; border-radius: 8px; border: none; font-weight: 800; cursor: pointer; transition: transform 0.1s; }
+.bdayPayBtn { background: #10b981; color: #022c22; }
+.bdayCongratsBtn { background: #db2777; color: #fff; }
+button:active { transform: scale(0.96); }
+.sheet { position: fixed; inset: 0; z-index: 2000; background: rgba(0,0,0,0.7); backdrop-filter: blur(5px); display: none; align-items: flex-end; justify-content: center; }
+.sheet.show { display: flex; }
+.panel { width: 100%; max-width: 600px; max-height: 85vh; border-bottom-left-radius: 0; border-bottom-right-radius: 0; display: flex; flex-direction: column; background: #0f172a; background: linear-gradient(180deg, #1e293b, #0f172a); border: 1px solid var(--card-border); box-shadow: 0 -10px 40px rgba(0,0,0,0.6); }
+[data-pot="kinder"] .panel { background: linear-gradient(180deg, #2e1065, #1e1b4b); }
+.panelHeader { padding: 16px; border-bottom: 1px solid var(--card-border); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: inherit; z-index: 10; border-top-left-radius: 20px; border-top-right-radius: 20px; }
+.closeX { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--card-border); background: rgba(255,255,255,0.1); color: #fff; display: grid; place-items: center; cursor: pointer; }
+.panelContent { padding: 16px; overflow-y: auto; }
+.beheerGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 16px; }
+.bTile { padding: 16px; display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.06); border: 1px solid var(--card-border); cursor: pointer; color: #ffffff !important; }
+.bTile:hover { background: rgba(255,255,255,0.1); }
+.btIcon { font-size: 24px; background: rgba(255,255,255,0.1); width: 40px; height: 40px; display: grid; place-items: center; border-radius: 10px; }
+.btText .btT { font-weight: 800; font-size: 14px; color: #fff; }
+.btText .btS { font-size: 11px; color: #d1d5db; margin-top:2px; }
+.statusRow { background: rgba(0,0,0,0.2); margin-bottom: 8px; padding: 12px; }
+.statusRow.paid { border-color: #10b981; background: rgba(16, 185, 129, 0.1); }
+.statusRow select { background: #000; color: #fff; border: 1px solid #444; }
+.startGate { position: fixed; inset: 0; z-index: 5000; background: #020617; display: flex; align-items: center; justify-content: center; padding: 20px; overflow-y:auto; }
+.startBox { width: 100%; max-width: 500px; padding-bottom:40px; }
+.startTitle { font-size: 28px; font-weight: 900; margin-bottom: 8px; text-align: center; background: -webkit-linear-gradient(0deg, #38bdf8, #e879f9); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.startSub { text-align: center; color: var(--text-muted); margin-bottom: 24px; }
+.startGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 20px; }
+.startTile { padding: 24px; text-align: center; cursor: pointer; background: linear-gradient(145deg, rgba(255,255,255,0.05), rgba(255,255,255,0.01)); }
+.startTile:hover { transform: translateY(-5px); }
+.startTile .ico { font-size: 40px; margin-top: 10px; filter: drop-shadow(0 0 10px rgba(255,255,255,0.3)); }
+.startTile .big { margin-top: 10px; font-size: 18px; font-weight: 800; }
+#chooseFamilie { border-color: rgba(56, 189, 248, 0.4); }
+#chooseFamilie:hover { box-shadow: 0 0 30px rgba(56, 189, 248, 0.3); }
+#chooseKinder { border-color: rgba(232, 121, 249, 0.4); }
+#chooseKinder:hover { box-shadow: 0 0 30px rgba(232, 121, 249, 0.3); }
+.btn { background: var(--theme-primary); color: #fff; width: 100%; border: none; padding: 12px; border-radius: 12px; font-weight: 800; margin-top: 10px; cursor: pointer; }
+.btn2 { background: transparent; border: 1px solid var(--card-border); color: #fff; width: 100%; padding: 12px; border-radius: 12px; font-weight: 800; margin-top: 8px; cursor: pointer; }
+.hidden { display: none !important; }
+.smallLinkBtn { background: transparent; border: none; color: #555; width: 100%; margin-top: 20px; font-size: 11px; cursor: pointer; }
+.inputGroup { margin-bottom: 12px; }
+.inputGroup label { display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 4px; }
+.inputGroup input, .inputGroup textarea { width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--card-border); color: #fff; padding: 10px; border-radius: 8px; }
+#loadingOverlay { position:fixed;inset:0;background:#000;z-index:9999;display:grid;place-items:center;color:#fff;font-weight:bold; }
+#installTip { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 9000; display: none; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(8px); }
+#installTip .tipBox { background: #1e293b; border: 1px solid #38bdf8; border-radius: 20px; padding: 24px; max-width: 400px; text-align: center; box-shadow: 0 0 30px rgba(56, 189, 248, 0.3); }
+#installTip h3 { color: #38bdf8; margin-bottom: 12px; font-size: 20px; }
+#installTip p { font-size: 14px; line-height: 1.5; color: #cbd5e1; margin-bottom: 20px; }
+#installTip ol { text-align: left; margin-bottom: 20px; padding-left: 20px; color: #cbd5e1; font-size: 13px; line-height: 1.6; }
+#installTip li { margin-bottom: 6px; }
+</style>
+</head>
+<body data-pot="familie" id="app">
+<div id="loadingOverlay">Laden vanuit cloud... ☁️</div>
+<div id="installTip">
+  <div class="tipBox">
+    <h3>📲 Installeer als App</h3>
+    <p>Voor de beste ervaring voeg je dit dashboard toe aan je beginscherm.</p>
+    <div id="iosTip" style="display:none;"><ol><li>Klik op de <b>Deel-knop</b> <span style="font-size:18px">⏏️</span> onderin.</li><li>Scroll omlaag en kies <b>"Zet op beginscherm"</b>.</li></ol></div>
+    <div id="androidTip" style="display:none;"><ol><li>Klik op de <b>3 puntjes</b> <span style="font-size:18px">⋮</span> rechtsboven.</li><li>Kies <b>"App installeren"</b> of <b>"Toevoegen aan startscherm"</b>.</li></ol></div>
+    <button class="btn" onclick="closeInstallTip()">Begrepen, sluiten</button>
+  </div>
+</div>
+<div class="startGate" id="startGate" aria-modal="true" role="dialog" style="display:none;">
+  <div class="startBox">
+    <div class="startTitle">Welkom Gaby</div>
+    <p class="startSub">Kies de pot om te beheren</p>
+    <div class="card" style="border:1px solid #eab308; background:rgba(234,179,8,0.05);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+           <b style="color:#facc15">📝 Prikbord</b>
+           <button id="saveMemo" style="background:#eab308;color:#000;border:none;padding:4px 10px;border-radius:6px;font-weight:bold;cursor:pointer;font-size:12px;">Opslaan</button>
+        </div>
+        <textarea id="memoField" rows="2" placeholder="Typ hier een berichtje..." style="width:100%;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.1);color:#fff;padding:8px;border-radius:8px;resize:vertical;font-family:inherit;"></textarea>
+    </div>
+    <div class="startGrid">
+      <div class="startTile" id="chooseFamilie" role="button" tabindex="0">
+        <div class="lbl">Open dashboard</div>
+        <div class="big" style="color:#38bdf8">Familiepot</div>
+        <div class="ico">💙</div>
+      </div>
+      <div class="startTile" id="chooseKinder" role="button" tabindex="0">
+        <div class="lbl">Open dashboard</div>
+        <div class="big" style="color:#e879f9">Kinderpot</div>
+        <div class="ico">💜</div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="header">
+  <div class="row">
+    <button class="hdrBtn" id="goHome">🏠 Home</button>
+    <span class="badge" id="activePot">Pot: —</span>
+    <select id="year"></select>
+    <select id="pot"><option value="familie">Familiepot</option><option value="kinder">Kinderpot</option></select>
+    <select id="month"></select>
+    <button class="hdrBtn" id="hdrBeheer">⚙️ Beheer</button>
+    <span class="badge">Betaaldatum: <b id="paydate"></b></span>
+  </div>
+</div>
+<div id="kinderMiniTabs" class="miniTabs" style="display:none;">
+  <button class="miniTab active" id="tabKinderOverzicht">Overzicht</button>
+  <button class="miniTab" id="tabKinderVerjaardagen">🎂 Verjaardagen</button>
+</div>
+<div class="wrap" id="appWrap" hidden>
+<div id="kinderOverviewWrap">
+  <div class="tiles">
+    <div class="tile"><div class="lbl">💰 In pot (t/m maand)</div><div class="big" id="t_in">€ 0,00</div></div>
+    <div class="tile"><div class="lbl">⏳ Totaal open (t/m maand)</div><div class="big" id="t_open">€ 0,00</div></div>
+    <div class="tile"><div class="lbl">✅ Betaald (maand)</div><div class="big" id="t_paid">0/8</div></div>
+    <div class="tile"><div class="lbl">📌 Te betalen (maand)</div><div class="big" id="t_due">€ 0,00</div></div>
+  </div>
+  <div class="cards" id="cards"></div>
+</div>
+<div class="section" id="birthdaySection" style="display:none;">
+  <div class="sectionHead"><div class="sectionTitle">🎂 Kinderverjaardagen</div></div>
+  <div class="bdayGrid">
+    <div class="bdayTile" data-bday="04-04">
+      <div class="bdayName">Naleya</div><div class="bdayDate">04-04-2020</div>
+      <div class="bdayRow"><div class="bdayCountdown">—</div><button class="bdayPayBtn" type="button" onclick="openIngAppOnly();">💸 Uitbetalen</button><button class="bdayCongratsBtn" type="button" onclick="sendCongrats(this);">🎉 Feliciteren</button></div>
+    </div>
+    <div class="bdayTile" data-bday="21-04">
+      <div class="bdayName">Shira</div><div class="bdayDate">21-04-2015</div>
+      <div class="bdayRow"><div class="bdayCountdown">—</div><button class="bdayPayBtn" type="button" onclick="openIngAppOnly();">💸 Uitbetalen</button><button class="bdayCongratsBtn" type="button" onclick="sendCongrats(this);">🎉 Feliciteren</button></div>
+    </div>
+    <div class="bdayTile" data-bday="26-06">
+      <div class="bdayName">Chloé</div><div class="bdayDate">26-06-2017</div>
+      <div class="bdayRow"><div class="bdayCountdown">—</div><button class="bdayPayBtn" type="button" onclick="openIngAppOnly();">💸 Uitbetalen</button><button class="bdayCongratsBtn" type="button" onclick="sendCongrats(this);">🎉 Feliciteren</button></div>
+    </div>
+    <div class="bdayTile" data-bday="28-06">
+      <div class="bdayName">Devan</div><div class="bdayDate">28-06-2014</div>
+      <div class="bdayRow"><div class="bdayCountdown">—</div><button class="bdayPayBtn" type="button" onclick="openIngAppOnly();">💸 Uitbetalen</button><button class="bdayCongratsBtn" type="button" onclick="sendCongrats(this);">🎉 Feliciteren</button></div>
+    </div>
+    <div class="bdayTile" data-bday="31-10">
+      <div class="bdayName">Shreya</div><div class="bdayDate">31-10-2015</div>
+      <div class="bdayRow"><div class="bdayCountdown">—</div><button class="bdayPayBtn" type="button" onclick="openIngAppOnly();">💸 Uitbetalen</button><button class="bdayCongratsBtn" type="button" onclick="sendCongrats(this);">🎉 Feliciteren</button></div>
+    </div>
+    <div class="bdayTile" data-bday="29-12">
+      <div class="bdayName">Amaya</div><div class="bdayDate">29-12-2022</div>
+      <div class="bdayRow"><div class="bdayCountdown">—</div><button class="bdayPayBtn" type="button" onclick="openIngAppOnly();">💸 Uitbetalen</button><button class="bdayCongratsBtn" type="button" onclick="sendCongrats(this);">🎉 Feliciteren</button></div>
+    </div>
+  </div>
+</div>
+<div class="sheet" id="beheerSheet">
+  <div class="panel">
+    <div class="panelHeader"><button class="closeX" data-close="beheerSheet">✕</button><div class="hdrTitle"><h3>Beheer</h3></div></div>
+    <div class="beheerGrid">
+      <button class="bTile" data-open="statusSheet"><div class="btIcon">✅</div><div class="btText"><div class="btT">Status bijwerken</div><div class="btS">Betaald / niet betaald</div></div></button>
+      <button class="bTile" data-open="openSheet"><div class="btIcon">🔴</div><div class="btText"><div class="btT">Niet betaald</div><div class="btS">Openstaande gezinnen</div></div><span class="btBadge" id="openCountBadge" style="background:red;border-radius:50%;padding:2px 6px;font-size:12px;display:none;">0</span></button>
+      <button class="bTile" data-open="whatsSheet"><div class="btIcon">💬</div><div class="btText"><div class="btT">WhatsApp</div><div class="btS">Herinnering / bedankje</div></div></button>
+      <button class="bTile" data-open="overSheet"><div class="btIcon">📊</div><div class="btText"><div class="btT">Overzicht</div><div class="btS">Stand delen / PDF</div></div></button>
+      <button class="bTile" data-open="settingsSheet"><div class="btIcon">⚙️</div><div class="btText"><div class="btT">Instellingen</div><div class="btS">Bedragen • Links</div></div></button>
+    </div>
+  </div>
+</div>
+<div class="sheet" id="statusSheet">
+  <div class="panel">
+    <div class="panelHeader">
+      <button class="closeX" data-close="statusSheet">✕</button>
+      <div><h3 style="margin:0">Status bijwerken</h3><div class="kids" id="statusContext" style="font-size:12px;color:var(--text-muted)"></div></div>
+      <button class="btnSaveTop" id="saveStatusTop">Opslaan</button>
+    </div>
+    <div class="panelContent">
+	    <div style="display:flex; gap:10px; margin-bottom:12px;">
+	      <button id="btnAllPaid" class="btnQuick" style="flex:1;background:#064e3b;color:#6ee7b7;border:1px solid #059669;border-radius:8px;padding:8px;cursor:pointer;font-weight:bold">✓ Iedereen betaald</button>
+	      <button id="btnResetAll" class="btnQuick" style="flex:1;background:#450a0a;color:#fca5a5;border:1px solid #b91c1c;border-radius:8px;padding:8px;cursor:pointer;font-weight:bold">✕ Reset alles</button>
+	    </div>
+        <div id="statusList"></div>
+    </div>
+  </div>
+</div>
+<div class="sheet" id="openSheet">
+  <div class="panel">
+    <div class="panelHeader"><button class="closeX" data-close="openSheet">✕</button><h3 style="margin:0">Niet betaald</h3></div>
+    <div class="panelContent">
+      <div class="kids" style="margin-bottom:8px;color:var(--text-muted)">Actie vereist voor deze maand</div>
+      <div id="openList" style="display:grid;gap:10px"></div>
+      <div class="actions"><button class="btn" id="btnReminder">⏰ Herinnering sturen</button></div>
+    </div>
+  </div>
+</div>
+<div class="sheet" id="whatsSheet">
+  <div class="panel">
+    <div class="panelHeader"><button class="closeX" data-close="whatsSheet">✕</button><h3 style="margin:0">WhatsApp</h3></div>
+    <div class="panelContent">
+      <div class="kids" id="whatsContext" style="color:var(--text-muted);margin-bottom:12px"></div>
+      <div class="card" style="margin-top:10px;display:block">
+        <b>Snelle acties</b>
+        <div class="actions" style="margin-top:10px">
+          <button class="btn" id="waReminder">⏰ Herinnering (openstaand)</button>
+          <button class="btn2" id="waThanks">✅ Bedankje</button>
+          <button class="btn2" id="waShare">📊 Status delen</button>
+          <button class="btn2" id="waPayDates">📅 Betaaldata jaar</button>
+          <button class="btn2" id="downloadIcsBtn" style="background:#eab308;color:#000;border:1px solid #facc15">📅 Zet in Agenda (iPhone / Google)</button>
+          <div style="margin-top:8px;font-size:11px;color:var(--text-muted);line-height:1.4">
+            <b>📱 iPhone instructie:</b><br>
+            1. Klik op de knop en kies <b>Download</b>.<br>
+            2. Tik op het <b>pijltje (⬇️)</b> in je adresbalk (of ga naar Bestanden).<br>
+            3. Tik op <b>betaaldata...ics</b> en kies <b>"Voeg toe aan agenda"</b>.
+          </div>
+        </div>
+      </div>
+      <div class="card" style="margin-top:10px;display:block">
+        <b>Betaallink</b>
+        <div class="kids" id="payLinkPreview" style="margin-top:8px;word-break:break-word;font-size:11px;color:var(--text-muted)"></div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="sheet" id="overSheet">
+  <div class="panel">
+    <div class="panelHeader"><button class="closeX" data-close="overSheet">✕</button><h3 style="margin:0">Overzicht</h3></div>
+    <div class="panelContent">
+      <div class="kids" id="overContext" style="margin-bottom:10px;color:var(--text-muted)"></div>
+      <div class="cards" style="grid-template-columns:1fr;gap:10px;margin-top:10px">
+        <div class="card"><div class="left"><b>💰 In pot (t/m maand)</b></div><div class="right"><div class="amt" id="ovIn">€ 0,00</div></div></div>
+        <div class="card"><div class="left"><b>⏳ Totaal open (t/m maand)</b></div><div class="right"><div class="amt" id="ovOpen">€ 0,00</div></div></div>
+        <div class="card"><div class="left"><b>✅ Betaald / Open (mnd)</b></div><div class="right"><div class="amt" id="ovCount">0/8</div><div class="kids" id="ovCount2">open: 0</div></div></div>
+      </div>
+      <div class="card" style="margin-top:10px;display:block">
+        <b>📄 Acties</b>
+        <div class="actions" style="margin-top:10px">
+          <button class="btn" id="btnPrint">Print / PDF</button>
+          <button class="btn2" id="btnOverShare">Delen via WhatsApp</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="sheet" id="settingsSheet">
+  <div class="panel">
+    <div class="panelHeader"><button class="closeX" data-close="settingsSheet">✕</button><div class="hdrTitle"><h3>Instellingen</h3></div><button class="btnSaveTop" id="saveSettingsBtn">Opslaan</button></div>
+    <div class="panelContent">
+      <div class="card" style="display:block">
+        <div class="inputGroup"><label>Familiepot bedrag (normaal)</label><input type="number" step="0.01" id="setFam"></div>
+        <div class="inputGroup"><label>Familiepot bedrag Anisa</label><input type="number" step="0.01" id="setAni"></div>
+        <div class="inputGroup"><label>Kinderpot bedrag</label><input type="number" step="0.01" id="setKid"></div>
+        <div class="inputGroup"><label>Betaallink Familiepot</label><textarea id="setLinkFam" rows="2"></textarea></div>
+        <div class="inputGroup"><label>Betaallink Kinderpot</label><textarea id="setLinkKid" rows="2"></textarea></div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+const firebaseConfig = {
+  apiKey: "AIzaSyAhbamryd9nD2zIgrbmcbIcsvUENkAw2as",
+  authDomain: "familiepot-ef736.firebaseapp.com",
+  databaseURL: "https://familiepot-ef736-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "familiepot-ef736",
+  storageBucket: "familiepot-ef736.firebasestorage.app",
+  messagingSenderId: "351310866648",
+  appId: "1:351310866648:web:3ed7ca196ba6831fa94fad"
+};
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const dbRef = ref(db, 'potState');
+let appState = { _ver: "final_cloud", mins: {fam: 32.0, ani: 16.0, kid: 15.0}, links: {familie: "", kinder: ""}, entries: {}, memo: "" };
+let isDataLoaded = false;
+const q = (id) => document.getElementById(id);
+const pot=q("pot"), year=q("year"), month=q("month"), paydate=q("paydate");
+const cards=q("cards"), t_in=q("t_in"), t_open=q("t_open"), t_paid=q("t_paid"), t_due=q("t_due"), openCountBadge=q("openCountBadge");
+const loadingOverlay = q("loadingOverlay");
+const payDates = {"2026":{"1":"28-01-2026","2":"25-02-2026","3":"25-03-2026","4":"29-04-2026","5":"27-05-2026","6":"24-06-2026","7":"29-07-2026","8":"26-08-2026","9":"30-09-2026","10":"28-10-2026","11":"25-11-2026","12":"30-12-2026"},"2027":{"1":"27-01-2027","2":"24-02-2027","3":"31-03-2027","4":"28-04-2027","5":"26-05-2027","6":"30-06-2027","7":"28-07-2027","8":"25-08-2027","9":"29-09-2027","10":"27-10-2027","11":"24-11-2027","12":"29-12-2027"},"2028":{"1":"26-01-2028","2":"23-02-2028","3":"29-03-2028","4":"26-04-2028","5":"31-05-2028","6":"28-06-2028","7":"26-07-2028","8":"30-08-2028","9":"27-09-2028","10":"25-10-2028","11":"29-11-2028","12":"27-12-2028"},"2029":{"1":"31-01-2029","2":"28-02-2029","3":"28-03-2029","4":"25-04-2029","5":"30-05-2029","6":"27-06-2029","7":"25-07-2029","8":"29-08-2029","9":"26-09-2029","10":"31-10-2029","11":"28-11-2029","12":"26-12-2029"},"2030":{"1":"30-01-2030","2":"27-02-2030","3":"27-03-2030","4":"24-04-2030","5":"29-05-2030","6":"26-06-2030","7":"31-07-2030","8":"28-08-2030","9":"25-09-2030","10":"30-10-2030","11":"27-11-2030","12":"25-12-2030"},"2031":{"1":"29-01-2031","2":"26-02-2031","3":"26-03-2031","4":"30-04-2031","5":"28-05-2031","6":"25-06-2031","7":"30-07-2031","8":"27-08-2031","9":"24-09-2031","10":"29-10-2031","11":"26-11-2031","12":"31-12-2031"},"2032":{"1":"28-01-2032","2":"25-02-2032","3":"31-03-2032","4":"28-04-2032","5":"26-05-2032","6":"30-06-2032","7":"28-07-2032","8":"25-08-2032","9":"29-09-2032","10":"27-10-2032","11":"24-11-2032","12":"29-12-2032"},"2033":{"1":"26-01-2033","2":"23-02-2033","3":"30-03-2033","4":"27-04-2033","5":"25-05-2033","6":"29-06-2033","7":"27-07-2033","8":"31-08-2033","9":"28-09-2033","10":"26-10-2033","11":"30-11-2033","12":"28-12-2033"},"2034":{"1":"25-01-2034","2":"22-02-2034","3":"29-03-2034","4":"26-04-2034","5":"31-05-2034","6":"28-06-2034","7":"26-07-2034","8":"30-08-2034","9":"27-09-2034","10":"25-10-2034","11":"29-11-2034","12":"27-12-2034"}};
+const YEARS = [2026,2027,2028,2029,2030,2031,2032,2033,2034];
+const monthNames = ["","Januari","Februari","Maart","April","Mei","Juni","Juli","Augustus","September","Oktober","November","December"];
+const families = [{"name":"Moek & Kawita","kids":"Shreya"},{"name":"Jennifer & Berry","kids":"Shira, Chloé"},{"name":"Armando & Sindy","kids":"Amaya"},{"name":"Gaby & Roland","kids":"Devan"},{"name":"Daan & Richella","kids":"—"},{"name":"Geetha & Loek","kids":"—"},{"name":"Roy & Ervinna","kids":"—"},{"name":"Anisa","kids":"Naleya"}];
+const DEFAULT_LINKS = {
+  familie: "https://www.ing.nl/de-ing/payreq?trxid=22U30oXxCkdS0OqDNplSZVFfokIr2Lwm&flow-step=payment-request",
+  kinder: "https://www.ing.nl/de-ing/payreq?trxid=FCcxWXtL7m0te2x0y8tH05gtGy1CgzhU&flow-step=payment-request"
+};
+onValue(dbRef, (snapshot) => {
+  const data = snapshot.val();
+  if (data) {
+    appState = data;
+    if(!appState.mins) appState.mins = {fam: 32.0, ani: 16.0, kid: 15.0};
+    if(!appState.links) appState.links = DEFAULT_LINKS; 
+    if(!appState.links.familie) appState.links.familie = DEFAULT_LINKS.familie;
+    if(!appState.links.kinder) appState.links.kinder = DEFAULT_LINKS.kinder;
+    if(!appState.entries) appState.entries = {};
+    if(!appState.memo) appState.memo = "";
+  } else {
+    appState.links = DEFAULT_LINKS;
+    saveCloud();
+  }
+  isDataLoaded = true;
+  loadingOverlay.style.display = 'none';
+  render();
+});
+function saveCloud(){ set(dbRef, appState); }
+function euro(n){ const v = Number(n); if (!Number.isFinite(v)) return "€ 0,00"; return "€ " + v.toFixed(2).replace(".", ","); }
+function key(p, y, m, f){ return p + "|" + y + "|" + m + "|" + f; }
+function minFor(p, f, mins){ return p === "familie" ? (f === "Anisa" ? mins.ani : mins.fam) : mins.kid; }
+function safePayDate(y,m){ const yy = String(y), mm = String(m); if (payDates[yy] && payDates[yy][mm]) return payDates[yy][mm]; return "—"; }
+function setTheme(){
+  const ap = document.getElementById("activePot");
+  if(ap){ ap.textContent = "Pot: " + (pot.value === "familie" ? "Familiepot" : "Kinderpot"); }
+  document.body.dataset.pot = pot.value;
+}
+window.render = function(){
+  if(!isDataLoaded) return;
+  setTheme();
+  const s = appState, p = pot.value, y = +year.value, m = +month.value;
+  paydate.textContent = safePayDate(y,m);
+  const mf = q("memoField"); if(mf) mf.value = s.memo || "";
+  const bsec = q("birthdaySection");
+  if (bsec) bsec.style.display = (p === "kinder") ? "block" : "none";
+  if (p === "kinder") __updateBirthdayCountdowns();
+  let paidTo = 0, openTo = 0, paidCnt = 0, dueM = 0, openNames = [];
+  cards.innerHTML = families.map(f => {
+    const e = s.entries[key(p, y, m, f.name)] || {status: "Niet betaald"};
+    const min = minFor(p, f.name, s.mins); dueM += min;
+    let famOpen = 0;
+    for (let mm = 1; mm <= m; mm++) {
+      const e2 = s.entries[key(p, y, mm, f.name)] || {status: "Niet betaald"};
+      const a = minFor(p, f.name, s.mins);
+      if (e2.status === "Betaald") paidTo += a; else famOpen += a;
+    }
+    openTo += famOpen;
+    if (e.status === "Betaald") paidCnt++; else openNames.push(f.name);
+    return `<div class="card"><div class="left"><b>${f.name}</b><div class="kids">Kids: ${f.kids}</div></div><div class="right"><div class="amt">${euro(min)}</div><div class="pill ${e.status==="Betaald"?"ok":"bad"}">${e.status==="Betaald"?"✅ betaald":"❌ open"}</div></div></div>`;
+  }).join("");
+  t_in.textContent = euro(paidTo); t_open.textContent = euro(openTo); t_paid.textContent = paidCnt + "/8"; t_due.textContent = euro(dueM);
+  openCountBadge.textContent = openNames.length; openCountBadge.style.display = openNames.length ? "grid" : "none";
+  window.__openNames = openNames;
+}
+q("saveMemo").onclick = () => { appState.memo = q("memoField").value; saveCloud(); const btn = q("saveMemo"); const oldTxt = btn.textContent; btn.textContent = "✔"; setTimeout(() => btn.textContent = oldTxt, 2000); };
+document.addEventListener("click", e => {
+  const tile = e.target.closest(".bTile[data-open]");
+  if (tile) {
+    q("beheerSheet").classList.remove("show");
+    const id = tile.dataset.open;
+    if (id === "statusSheet") openStatus();
+    else if (id === "openSheet") openOpen();
+    else if (id === "whatsSheet") openWhats();
+    else if (id === "overSheet") openOver();
+    else if (id === "settingsSheet") { loadSettings(); q("settingsSheet").classList.add("show"); }
+  }
+  const close = e.target.closest(".closeX[data-close]");
+  if (close) q(close.dataset.close).classList.remove("show");
+});
+q("hdrBeheer").onclick = () => q("beheerSheet").classList.add("show");
+function openStatus(){
+  const s = appState, p = pot.value, y = +year.value, m = +month.value;
+  q("statusContext").textContent = `${p==="familie"?"Familiepot":"Kinderpot"} – ${monthNames[m]} ${y}`;
+  q("statusList").innerHTML = families.map(f => {
+    const k = key(p, y, m, f.name);
+    const e = s.entries[k] || {status: "Niet betaald"};
+    return `<div class="card statusRow ${e.status === "Betaald" ? "paid" : ""}"> <div class="left"><b>${f.name}</b><div class="kids">${f.kids}</div></div><div class="right"><select data-fam="${f.name}"><option value="Niet betaald" ${e.status==="Niet betaald" ? "selected" : ""}>Niet betaald</option><option value="Betaald" ${e.status==="Betaald" ? "selected" : ""}>Betaald</option></select></div></div>`;
+  }).join("");
+  document.querySelectorAll("#statusList select").forEach(sel => { sel.addEventListener("change", () => { sel.closest(".statusRow").classList.toggle("paid", sel.value === "Betaald"); }); });
+  q("statusSheet").classList.add("show");
+}
+q("saveStatusTop").onclick = () => { const p = pot.value, y = +year.value, m = +month.value; document.querySelectorAll("#statusList select").forEach(sel => { appState.entries[key(p, y, m, sel.dataset.fam)] = {status: sel.value}; }); saveCloud(); q("statusSheet").classList.remove("show"); };
+q("btnAllPaid").onclick = () => { document.querySelectorAll("#statusList select").forEach(s=>{s.value="Betaald";s.dispatchEvent(new Event("change"));}); };
+q("btnResetAll").onclick = () => { document.querySelectorAll("#statusList select").forEach(s=>{s.value="Niet betaald";s.dispatchEvent(new Event("change"));}); };
+function openOpen(){ const openNames = window.__openNames || []; q("openList").innerHTML = !openNames.length ? `<div class="card"><b>Alles betaald 🎉</b></div>` : openNames.map(n => `<div class="card"><b>${n}</b></div>`).join(""); q("openSheet").classList.add("show"); }
+q("btnReminder").onclick = () => {
+  const open = window.__openNames || [];
+  const link = appState.links[pot.value] || "";
+  const pName = pot.value === "familie" ? "Familiepot 💙" : "Kinderpot 💜";
+  const msg = `Hoi allemaal! 👋\n\nEven een vriendelijke herinnering voor de *${pName}* van *${monthNames[+month.value]} ${year.value}*. ✨\n\n📅 Betaaldatum: ${paydate.textContent}\n\nNog openstaand:\n${open.length ? open.map(n=>"• "+n).join("\n") : "—"}\n\n${link ? "Betaallink:\n" + link + "\n\n" : ""}Alvast super bedankt! 🙏`;
+  window.open("https://wa.me/?text=" + encodeURIComponent(msg));
+};
+function openWhats(){ q("whatsContext").textContent = `${pot.value} – ${monthNames[+month.value]} ${year.value}`; q("payLinkPreview").textContent = appState.links[pot.value] || "(geen link)"; q("whatsSheet").classList.add("show"); }
+q("waReminder").onclick = q("btnReminder").onclick;
+q("waThanks").onclick = () => {
+  const pName = pot.value === "familie" ? "Familiepot 💙" : "Kinderpot 💜";
+  const msg = `Lieve allemaal, super bedankt! 💖\n\nDe *${pName}* van *${monthNames[+month.value]} ${year.value}* is helemaal compleet! 🎉✅`;
+  window.open("https://wa.me/?text=" + encodeURIComponent(msg));
+};
+q("waShare").onclick = () => {
+  const paid = 8-(window.__openNames?.length||0), open = window.__openNames?.length||0;
+  const pName = pot.value === "familie" ? "Familiepot 💙" : "Kinderpot 💜";
+  const msg = `📊 *Tussenstand ${pName}* – ${monthNames[+month.value]} ${year.value}\n\n✅ Betaald: ${paid}/8\n⏳ Nog open: ${open}\n\nWe zijn er bijna! 💪`;
+  window.open("https://wa.me/?text=" + encodeURIComponent(msg));
+};
+
+// NIEUWE FUNCTIE: Betaaldata verzenden (Warm & Vriendelijk) + GOOGLE LINK
+window.__waSendPayDates = function(){
+    const y = year.value;
+    const pName = pot.value === "familie" ? "Familiepot" : "Kinderpot"; // Plain voor Google
+    const pNameFancy = pot.value === "familie" ? "Familiepot 💙" : "Kinderpot 💜"; // Fancy voor WhatsApp
+    const dates = payDates[y];
+    if(!dates) return alert("Geen data voor " + y);
+    
+    // Maak Google Calendar link (Jaarlijks terugkerend)
+    const firstDateParts = dates[1].split("-"); // 28-01-2026 -> [28, 01, 2026]
+    const gDate = firstDateParts[2] + firstDateParts[1] + firstDateParts[0]; // 20260128
+    const gLink = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=Betaaldag+${pName}&dates=${gDate}T090000Z/${gDate}T100000Z&recur=RRULE:FREQ=MONTHLY;BYDAY=-1WE&details=Vergeet+niet+de+${pName}+over+te+maken!`;
+
+    let msg = `Lieve allemaal! 💖\n\nHierbij alvast een handig overzichtje van de betaaldata voor *${y}* van de *${pNameFancy}*. 📅 Zo kunnen we ze alvast in de agenda zetten!\n\n`;
+    for(let i=1; i<=12; i++){
+        msg += `• ${monthNames[i]}: ${dates[i]}\n`;
+    }
+    
+    msg += `\n💡 *Tip:* Klik hier om ze direct in je Google Agenda te zetten:\n${gLink}\n\nLiefs, Gaby 💐`;
+    
+    window.open("https://wa.me/?text=" + encodeURIComponent(msg));
+};
+q("waPayDates").onclick = window.__waSendPayDates;
+
+// NIEUWE FUNCTIE: ICS Genereren (Agenda bestand)
+q("downloadIcsBtn").onclick = function(){
+    const y = year.value;
+    const pName = pot.value === "familie" ? "Familiepot" : "Kinderpot";
+    const dates = payDates[y];
+    if(!dates) return alert("Geen data voor " + y);
+
+    let icsContent = "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//Moek//PotDashboard//NL\nCALSCALE:GREGORIAN\nMETHOD:PUBLISH\n";
+    
+    for(let i=1; i<=12; i++){
+        const dateStr = dates[i]; // bijv 28-01-2026
+        const parts = dateStr.split("-"); // [28, 01, 2026]
+        // ICS format: YYYYMMDD
+        const icsDate = parts[2] + parts[1] + parts[0]; 
+        
+        icsContent += "BEGIN:VEVENT\n";
+        icsContent += "DTSTART;VALUE=DATE:" + icsDate + "\n";
+        icsContent += "DTEND;VALUE=DATE:" + icsDate + "\n";
+        icsContent += "SUMMARY:Betaaldag " + pName + "\n";
+        icsContent += "DESCRIPTION:Vergeet niet de " + pName + " over te maken!\n";
+        icsContent += "STATUS:CONFIRMED\n";
+        icsContent += "TRANSP:TRANSPARENT\n"; // Laat agenda 'vrij' zien, alleen reminder
+        icsContent += "END:VEVENT\n";
+    }
+    icsContent += "END:VCALENDAR";
+
+    const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+    const link = document.createElement('a');
+    link.href = window.URL.createObjectURL(blob);
+    link.setAttribute('download', 'betaaldata_' + y + '.ics');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+};
+
+function openOver(){ const s = appState, p = pot.value, y = +year.value, m = +month.value; q("overContext").textContent = `${p} – t/m ${monthNames[m]} ${y}`; let paidTo=0, openTo=0, paidCnt=0, openCnt=0; families.forEach(f => { if ((s.entries[key(p,y,m,f.name)]||{}).status==="Betaald") paidCnt++; else openCnt++; for(let mm=1; mm<=m; mm++){ const amt = minFor(p, f.name, s.mins); if((s.entries[key(p,y,mm,f.name)]||{}).status==="Betaald") paidTo+=amt; else openTo+=amt; } }); q("ovIn").textContent = euro(paidTo); q("ovOpen").textContent = euro(openTo); q("ovCount").textContent = `${paidCnt}/8`; q("ovCount2").textContent = `open: ${openCnt}`; q("overSheet").classList.add("show"); }
+q("btnPrint").onclick = () => window.print();
+q("btnOverShare").onclick = () => window.open("https://wa.me/?text=" + encodeURIComponent(`Overzicht ${q("overContext").textContent}\n💰 In pot: ${q("ovIn").textContent}\n⏳ Open: ${q("ovOpen").textContent}`));
+function loadSettings(){ const s = appState; q("setFam").value = s.mins.fam; q("setAni").value = s.mins.ani; q("setKid").value = s.mins.kid; q("setLinkFam").value = s.links.familie; q("setLinkKid").value = s.links.kinder; }
+q("saveSettingsBtn").onclick = () => { const s = appState; s.mins.fam = parseFloat(q("setFam").value)||32; s.mins.ani = parseFloat(q("setAni").value)||16; s.mins.kid = parseFloat(q("setKid").value)||15; s.links.familie = q("setLinkFam").value.trim(); s.links.kinder = q("setLinkKid").value.trim(); saveCloud(); alert("Opgeslagen!"); render(); };
+const startGate=q("startGate"), appWrap=q("appWrap");
+window.openAppWithPot = function(p){ pot.value = p; startGate.style.display="none"; appWrap.hidden=false; render(); }
+q("chooseFamilie").onclick = () => openAppWithPot("familie");
+q("chooseKinder").onclick = () => openAppWithPot("kinder");
+q("goHome").onclick = () => { appWrap.hidden=true; startGate.style.display="flex"; };
+YEARS.forEach(y => { const o=document.createElement("option"); o.value=y; o.textContent=y; year.appendChild(o); });
+for(let i=1;i<=12;i++){ const o=document.createElement("option"); o.value=i; o.textContent=monthNames[i]; month.appendChild(o); }
+const now = new Date(); year.value = YEARS.includes(now.getFullYear())?now.getFullYear():YEARS[0]; month.value = now.getMonth()+1;
+year.onchange=month.onchange=pot.onchange=render;
+function __updateBirthdayCountdowns(){ document.querySelectorAll(".bdayTile[data-bday]").forEach(t=>{ const p = (t.dataset.bday||"").split("-"); if(p.length!==2)return; const now = new Date(), today = new Date(now.getFullYear(), now.getMonth(), now.getDate()); let target = new Date(today.getFullYear(), parseInt(p[1])-1, parseInt(p[0])); if(target<today) target = new Date(today.getFullYear()+1, parseInt(p[1])-1, parseInt(p[0])); const diff = Math.round((target-today)/86400000); const el = t.querySelector(".bdayCountdown"); if(el) el.textContent = diff===0 ? "🎉 vandaag!" : (diff===1?"⏳ morgen":`⏳ nog ${diff} dagen`); }); }
+window.openIngAppOnly = function(){ const ua = navigator.userAgent||""; if(/Android/i.test(ua)) window.location.href="intent://#Intent;scheme=ingbankieren;package=com.ing.mobile;end;"; else if(/iPhone|iPad/i.test(ua)) window.location.href="ingbankieren://"; else alert("Open ING app handmatig."); };
+window.sendCongrats = function(btn){ const name = btn.closest(".bdayTile").querySelector(".bdayName").textContent; const isBoy = name.toLowerCase() === "devan"; window.open("https://wa.me/?text=" + encodeURIComponent(`${isBoy?"🧒🎉":"👧🎉"} *Van harte gefeliciteerd ${name}!* 🎂\n\nFijne verjaardag! 💖✨\n\nLiefs,\nGaby 💐`)); };
+(function(){
+  const miniTabs = document.getElementById('kinderMiniTabs');
+  const tabO = document.getElementById('tabKinderOverzicht');
+  const tabV = document.getElementById('tabKinderVerjaardagen');
+  function getEls(){ return { potSel: document.getElementById('pot'), birthday: document.getElementById('birthdaySection'), ov: document.getElementById('kinderOverviewWrap') }; }
+  function showO(){ const {birthday, ov} = getEls(); if(ov) ov.style.display='block'; if(birthday) birthday.style.display='none'; if(tabO) tabO.classList.add('active'); if(tabV) tabV.classList.remove('active'); }
+  function showV(){ const {birthday, ov} = getEls(); if(ov) ov.style.display='none'; if(birthday) birthday.style.display='block'; if(tabV) tabV.classList.add('active'); if(tabO) tabO.classList.remove('active'); }
+  if(tabO) tabO.onclick = showO; if(tabV) tabV.onclick = showV;
+  function syncPot(){ const {potSel, birthday, ov} = getEls(); if(!potSel || !miniTabs) return; if(potSel.value === 'kinder'){ miniTabs.style.display = 'flex'; showO(); } else { miniTabs.style.display = 'none'; if(birthday) birthday.style.display = 'none'; if(ov) ov.style.display = 'block'; } }
+  document.addEventListener('change', (e)=>{ if(e.target && e.target.id === 'pot') syncPot(); });
+  const prev = window.openAppWithPot; window.openAppWithPot = function(p){ const r = prev.apply(this, arguments); requestAnimationFrame(syncPot); return r; };
+  const prevRender = window.render; window.render = function(){ const r = prevRender.apply(this, arguments); requestAnimationFrame(syncPot); return r; };
+  document.addEventListener('DOMContentLoaded', ()=>requestAnimationFrame(syncPot));
+})();
+window.closeInstallTip = function() { q("installTip").style.display = "none"; localStorage.setItem("installTipSeen", "true"); };
+(function(){
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+    const hasSeen = localStorage.getItem("installTipSeen");
+    if (!isStandalone && !hasSeen) {
+        const ua = navigator.userAgent || "";
+        const isIOS = /iPhone|iPad|iPod/i.test(ua); const isAndroid = /Android/i.test(ua);
+        if (isIOS) q("iosTip").style.display = "block"; else if (isAndroid) q("androidTip").style.display = "block"; else return;
+        setTimeout(() => q("installTip").style.display = "flex", 1000);
+    }
+})();
+startGate.style.display = "flex";
+</script>
+</body>
+</html>
