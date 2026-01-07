@@ -7,7 +7,6 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Familiepot">
-
 <link rel="apple-touch-icon" href="Groepsfoto.jpg">
 <link rel="icon" href="Groepsfoto.jpg">
 
@@ -136,6 +135,27 @@ button:active { transform: scale(0.96); }
 #installTip p { font-size: 14px; line-height: 1.5; color: #cbd5e1; margin-bottom: 20px; }
 #installTip ol { text-align: left; margin-bottom: 20px; padding-left: 20px; color: #cbd5e1; font-size: 13px; line-height: 1.6; }
 #installTip li { margin-bottom: 6px; }
+/* Prikbord styling */
+.memo-card {
+  background: rgba(255,255,255,0.03); border: 1px solid var(--card-border); border-radius: 16px;
+  position: relative; overflow: hidden; margin-bottom: 20px; transition: border-color 0.3s;
+}
+.memo-card:focus-within { border-color: var(--theme-primary); box-shadow: 0 0 15px rgba(59,130,246,0.2); }
+.memo-header { display: flex; align-items: center; gap: 8px; padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,0.05); background: rgba(0,0,0,0.2); }
+.memo-title { font-weight: 700; color: #eab308; display:flex; align-items:center; gap:6px; font-size: 14px; }
+.memo-area {
+  width: 100%; background: transparent; border: none; color: #fff; padding: 16px;
+  font-family: inherit; font-size: 15px; line-height: 1.5; resize: none; min-height: 80px; display: block; outline: none;
+}
+.memo-save-btn {
+  position: absolute; bottom: 10px; right: 10px;
+  background: #eab308; color: #000; border: none; padding: 6px 12px;
+  border-radius: 8px; font-weight: 700; font-size: 12px; cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.3); transition: transform 0.1s, opacity 0.2s;
+  opacity: 0.8;
+}
+.memo-save-btn:hover { opacity: 1; transform: scale(1.05); }
+.memo-save-btn:active { transform: scale(0.95); }
 </style>
 </head>
 <body data-pot="familie" id="app">
@@ -153,13 +173,15 @@ button:active { transform: scale(0.96); }
   <div class="startBox">
     <div class="startTitle">Welkom Gaby</div>
     <p class="startSub">Kies de pot om te beheren</p>
-    <div class="card" style="border:1px solid #eab308; background:rgba(234,179,8,0.05);">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-           <b style="color:#facc15">📝 Prikbord</b>
-           <button id="saveMemo" style="background:#eab308;color:#000;border:none;padding:4px 10px;border-radius:6px;font-weight:bold;cursor:pointer;font-size:12px;">Opslaan</button>
+    
+    <div class="memo-card">
+        <div class="memo-header">
+           <span class="memo-title">📝 Prikbord</span>
         </div>
-        <textarea id="memoField" rows="2" placeholder="Typ hier een berichtje..." style="width:100%;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.1);color:#fff;padding:8px;border-radius:8px;resize:vertical;font-family:inherit;"></textarea>
+        <textarea id="memoField" class="memo-area" placeholder="Typ hier een berichtje..."></textarea>
+        <button id="saveMemo" class="memo-save-btn">Opslaan</button>
     </div>
+
     <div class="startGrid">
       <div class="startTile" id="chooseFamilie" role="button" tabindex="0">
         <div class="lbl">Open dashboard</div>
