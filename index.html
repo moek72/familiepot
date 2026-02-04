@@ -353,12 +353,6 @@ button:active { transform: scale(0.96); }
 </div>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import {
-  getAuth,
-  GoogleAuthProvider,
-  onAuthStateChanged,
-  signInWithPopup
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
 const firebaseConfig = {
@@ -372,18 +366,12 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-
-// AUTH
-const auth = getAuth(app);
-const provider = new GoogleAuthProvider();
-
-// DB
 const db = getDatabase(app);
 const dbRef = ref(db, "potState");
 
 // STATE
 let appState = {
-  _ver: "final_cloud",
+  _ver: "no_auth_v1",
   mins: { fam: 32.0, ani: 16.0, kid: 15.0 },
   links: { familie: "", kinder: "" },
   entries: {},
@@ -858,82 +846,36 @@ window.closeInstallTip = function () {
   }
 })();
 
-// ===== AUTH -> DB (POPUP FIX) =====
-let startedDb = false;
+// ===== LOAD FROM FIREBASE (NO AUTH) =====
+onValue(
+  dbRef,
+  (snapshot) => {
+    const data = snapshot.val();
 
-async function bootAuthThenDb() {
-  onAuthStateChanged(auth, async (user) => {
-    if (!user) {
-      // Show login prompt met popup
-      loadingOverlay.innerHTML = `
-        <div style="text-align:center">
-          <div style="font-size:24px;margin-bottom:20px">☁️</div>
-          <div style="margin-bottom:20px">Login vereist voor cloud-sync</div>
-          <button id="loginBtn" style="background:#4285f4;color:#fff;border:none;padding:12px 24px;border-radius:8px;font-weight:bold;cursor:pointer">
-            🔐 Inloggen met Google
-          </button>
-        </div>
-      `;
-      
-      document.getElementById("loginBtn").onclick = async () => {
-        try {
-          loadingOverlay.innerHTML = "Inloggen... ⏳";
-          await signInWithPopup(auth, provider);
-        } catch (error) {
-          console.error("Login error:", error);
-          loadingOverlay.innerHTML = `
-            <div style="text-align:center;color:#f87171">
-              <div style="margin-bottom:12px">❌ Login mislukt</div>
-              <div style="font-size:12px;margin-bottom:20px">${error.message}</div>
-              <button id="retryBtn" style="background:#4285f4;color:#fff;border:none;padding:12px 24px;border-radius:8px;font-weight:bold;cursor:pointer">
-                🔄 Opnieuw proberen
-              </button>
-            </div>
-          `;
-          document.getElementById("retryBtn").onclick = () => location.reload();
-        }
-      };
-      return;
+    if (data) {
+      appState = data;
+      if (!appState.mins) appState.mins = { fam: 32.0, ani: 16.0, kid: 15.0 };
+      if (!appState.links) appState.links = DEFAULT_LINKS;
+      if (!appState.links.familie) appState.links.familie = DEFAULT_LINKS.familie;
+      if (!appState.links.kinder) appState.links.kinder = DEFAULT_LINKS.kinder;
+      if (!appState.entries) appState.entries = {};
+      if (!appState.memo) appState.memo = "";
+    } else {
+      appState.links = DEFAULT_LINKS;
+      saveCloud();
     }
 
-    // User is ingelogd
-    if (startedDb) return;
-    startedDb = true;
-
-    onValue(
-      dbRef,
-      (snapshot) => {
-        const data = snapshot.val();
-
-        if (data) {
-          appState = data;
-          if (!appState.mins) appState.mins = { fam: 32.0, ani: 16.0, kid: 15.0 };
-          if (!appState.links) appState.links = DEFAULT_LINKS;
-          if (!appState.links.familie) appState.links.familie = DEFAULT_LINKS.familie;
-          if (!appState.links.kinder) appState.links.kinder = DEFAULT_LINKS.kinder;
-          if (!appState.entries) appState.entries = {};
-          if (!appState.memo) appState.memo = "";
-        } else {
-          appState.links = DEFAULT_LINKS;
-          saveCloud();
-        }
-
-        isDataLoaded = true;
-        loadingOverlay.style.display = "none";
-        startGate.style.display = "flex";
-        render();
-      },
-      (error) => {
-        console.error("DB onValue error:", error);
-        loadingOverlay.style.display = "none";
-        alert("Firebase DB error: " + (error?.message || error));
-      }
-    );
-  });
-}
-
-// Start de app
-bootAuthThenDb();
+    isDataLoaded = true;
+    loadingOverlay.style.display = "none";
+    startGate.style.display = "flex";
+    render();
+  },
+  (error) => {
+    console.error("DB onValue error:", error);
+    loadingOverlay.style.display = "none";
+    alert("Firebase DB error: " + (error?.message || error));
+  }
+);
 </script>
 
 
