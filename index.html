@@ -108,9 +108,8 @@ button:active { transform: scale(0.96); }
 .statusRow { background: rgba(0,0,0,0.2); margin-bottom: 8px; padding: 12px; }
 .statusRow.paid { border-color: #10b981; background: rgba(16, 185, 129, 0.1); }
 .statusRow select { background: #000; color: #fff; border: 1px solid #444; }
-
 .startGate { position: fixed; inset: 0; z-index: 5000; background: #020617; display: flex; align-items: center; justify-content: center; padding: 20px; overflow-y:auto; }
-.startBox { width: 100%; max-width: 520px; padding-bottom:40px; }
+.startBox { width: 100%; max-width: 500px; padding-bottom:40px; }
 .startTitle { font-size: 28px; font-weight: 900; margin-bottom: 8px; text-align: center; background: -webkit-linear-gradient(0deg, #38bdf8, #e879f9); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 .startSub { text-align: center; color: var(--text-muted); margin-bottom: 24px; }
 .startGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 20px; }
@@ -125,20 +124,17 @@ button:active { transform: scale(0.96); }
 .btn { background: var(--theme-primary); color: #fff; width: 100%; border: none; padding: 12px; border-radius: 12px; font-weight: 800; margin-top: 10px; cursor: pointer; }
 .btn2 { background: transparent; border: 1px solid var(--card-border); color: #fff; width: 100%; padding: 12px; border-radius: 12px; font-weight: 800; margin-top: 8px; cursor: pointer; }
 .hidden { display: none !important; }
+.smallLinkBtn { background: transparent; border: none; color: #555; width: 100%; margin-top: 20px; font-size: 11px; cursor: pointer; }
 .inputGroup { margin-bottom: 12px; }
 .inputGroup label { display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 4px; }
 .inputGroup input, .inputGroup textarea { width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--card-border); color: #fff; padding: 10px; border-radius: 8px; }
-
-#loadingOverlay { position:fixed; inset:0; background:#000; z-index:9999; display:grid; place-items:center; color:#fff; font-weight:bold; padding:16px; text-align:center; }
-#loadingOverlay .small { margin-top:10px; font-size:12px; color:rgba(255,255,255,0.7); font-weight:600; line-height:1.4; }
-
+#loadingOverlay { position:fixed;inset:0;background:#000;z-index:9999;display:grid;place-items:center;color:#fff;font-weight:bold; }
 #installTip { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 9000; display: none; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(8px); }
 #installTip .tipBox { background: #1e293b; border: 1px solid #38bdf8; border-radius: 20px; padding: 24px; max-width: 400px; text-align: center; box-shadow: 0 0 30px rgba(56, 189, 248, 0.3); }
 #installTip h3 { color: #38bdf8; margin-bottom: 12px; font-size: 20px; }
 #installTip p { font-size: 14px; line-height: 1.5; color: #cbd5e1; margin-bottom: 20px; }
 #installTip ol { text-align: left; margin-bottom: 20px; padding-left: 20px; color: #cbd5e1; font-size: 13px; line-height: 1.6; }
 #installTip li { margin-bottom: 6px; }
-
 /* Prikbord styling */
 .memo-card {
   background: rgba(255,255,255,0.03); border: 1px solid var(--card-border); border-radius: 16px;
@@ -160,94 +156,30 @@ button:active { transform: scale(0.96); }
 }
 .memo-save-btn:hover { opacity: 1; transform: scale(1.05); }
 .memo-save-btn:active { transform: scale(0.95); }
-
-/* Offline badge */
-#offlineBadge{
-  position: fixed;
-  left: 12px;
-  bottom: 12px;
-  z-index: 9998;
-  background: rgba(0,0,0,0.55);
-  border: 1px solid rgba(255,255,255,0.2);
-  color: rgba(255,255,255,0.9);
-  padding: 8px 10px;
-  border-radius: 12px;
-  font-size: 12px;
-  display: none;
-  backdrop-filter: blur(8px);
-}
-#offlineBadge b{ color:#fbbf24; }
-
-/* Login panel inside startGate */
-.loginCard{
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.18);
-  border-radius: 16px;
-  padding: 14px;
-  margin-bottom: 16px;
-}
-.loginCard .title{
-  font-weight: 900;
-  margin-bottom: 6px;
-}
-.loginCard .desc{
-  font-size: 12px;
-  color: rgba(255,255,255,0.7);
-  line-height: 1.4;
-}
 </style>
 </head>
-
 <body data-pot="familie" id="app">
-
-<div id="loadingOverlay">
-  Laden vanuit cloud... ☁️
-  <div class="small" id="loadingSmall">Even geduld…</div>
-</div>
-
-<div id="offlineBadge">⚠️ <b>Offline</b> modus (LocalStorage)</div>
-
+<div id="loadingOverlay">Laden vanuit cloud... ☁️</div>
 <div id="installTip">
   <div class="tipBox">
     <h3>📲 Installeer als App</h3>
     <p>Voor de beste ervaring voeg je dit dashboard toe aan je beginscherm.</p>
-    <div id="iosTip" style="display:none;">
-      <ol>
-        <li>Klik op de <b>Deel-knop</b> <span style="font-size:18px">⏏️</span> onderin.</li>
-        <li>Scroll omlaag en kies <b>"Zet op beginscherm"</b>.</li>
-      </ol>
-    </div>
-    <div id="androidTip" style="display:none;">
-      <ol>
-        <li>Klik op de <b>3 puntjes</b> <span style="font-size:18px">⋮</span> rechtsboven.</li>
-        <li>Kies <b>"App installeren"</b> of <b>"Toevoegen aan startscherm"</b>.</li>
-      </ol>
-    </div>
+    <div id="iosTip" style="display:none;"><ol><li>Klik op de <b>Deel-knop</b> <span style="font-size:18px">⏏️</span> onderin.</li><li>Scroll omlaag en kies <b>"Zet op beginscherm"</b>.</li></ol></div>
+    <div id="androidTip" style="display:none;"><ol><li>Klik op de <b>3 puntjes</b> <span style="font-size:18px">⋮</span> rechtsboven.</li><li>Kies <b>"App installeren"</b> of <b>"Toevoegen aan startscherm"</b>.</li></ol></div>
     <button class="btn" onclick="closeInstallTip()">Begrepen, sluiten</button>
   </div>
 </div>
-
 <div class="startGate" id="startGate" aria-modal="true" role="dialog" style="display:none;">
   <div class="startBox">
     <div class="startTitle">Welkom Gaby</div>
     <p class="startSub">Kies de pot om te beheren</p>
-
-    <div class="loginCard" id="loginCard" style="display:none;">
-      <div class="title">🔐 Login nodig</div>
-      <div class="desc" id="loginMsg">
-        Je browser blokkeert de automatische login of Firebase geeft een fout. Klik hieronder.
-      </div>
-      <button class="btn" id="btnLoginPopup">Login met Google</button>
-      <button class="btn2" id="btnLoginRedirect">Login via Redirect</button>
-      <button class="btn2" id="btnUseOffline">Gebruik Offline (LocalStorage)</button>
-    </div>
-
+    
     <div class="memo-card">
-      <div class="memo-header">
-        <span class="memo-title">📝 Prikbord</span>
-      </div>
-      <textarea id="memoField" class="memo-area" placeholder="Typ hier een berichtje..."></textarea>
-      <button id="saveMemo" class="memo-save-btn">Opslaan</button>
+        <div class="memo-header">
+           <span class="memo-title">📝 Prikbord</span>
+        </div>
+        <textarea id="memoField" class="memo-area" placeholder="Typ hier een berichtje..."></textarea>
+        <button id="saveMemo" class="memo-save-btn">Opslaan</button>
     </div>
 
     <div class="startGrid">
@@ -264,7 +196,6 @@ button:active { transform: scale(0.96); }
     </div>
   </div>
 </div>
-
 <div class="header">
   <div class="row">
     <button class="hdrBtn" id="goHome">🏠 Home</button>
@@ -276,172 +207,159 @@ button:active { transform: scale(0.96); }
     <span class="badge">Betaaldatum: <b id="paydate"></b></span>
   </div>
 </div>
-
 <div id="kinderMiniTabs" class="miniTabs" style="display:none;">
   <button class="miniTab active" id="tabKinderOverzicht">Overzicht</button>
   <button class="miniTab" id="tabKinderVerjaardagen">🎂 Verjaardagen</button>
 </div>
-
 <div class="wrap" id="appWrap" hidden>
-  <div id="kinderOverviewWrap">
-    <div class="tiles">
-      <div class="tile"><div class="lbl">💰 In pot (t/m maand)</div><div class="big" id="t_in">€ 0,00</div></div>
-      <div class="tile"><div class="lbl">⏳ Totaal open (t/m maand)</div><div class="big" id="t_open">€ 0,00</div></div>
-      <div class="tile"><div class="lbl">✅ Betaald (maand)</div><div class="big" id="t_paid">0/8</div></div>
-      <div class="tile"><div class="lbl">📌 Te betalen (maand)</div><div class="big" id="t_due">€ 0,00</div></div>
-    </div>
-    <div class="cards" id="cards"></div>
+<div id="kinderOverviewWrap">
+  <div class="tiles">
+    <div class="tile"><div class="lbl">💰 In pot (t/m maand)</div><div class="big" id="t_in">€ 0,00</div></div>
+    <div class="tile"><div class="lbl">⏳ Totaal open (t/m maand)</div><div class="big" id="t_open">€ 0,00</div></div>
+    <div class="tile"><div class="lbl">✅ Betaald (maand)</div><div class="big" id="t_paid">0/8</div></div>
+    <div class="tile"><div class="lbl">📌 Te betalen (maand)</div><div class="big" id="t_due">€ 0,00</div></div>
   </div>
-
-  <div class="section" id="birthdaySection" style="display:none;">
-    <div class="sectionHead"><div class="sectionTitle">🎂 Kinderverjaardagen</div></div>
-    <div class="bdayGrid">
-      <div class="bdayTile" data-bday="04-04">
-        <div class="bdayName">Naleya</div><div class="bdayDate">04-04-2020</div>
-        <div class="bdayRow"><div class="bdayCountdown">—</div><button class="bdayPayBtn" type="button" onclick="openIngAppOnly();">💸 Uitbetalen</button><button class="bdayCongratsBtn" type="button" onclick="sendCongrats(this);">🎉 Feliciteren</button></div>
-      </div>
-      <div class="bdayTile" data-bday="21-04">
-        <div class="bdayName">Shira</div><div class="bdayDate">21-04-2015</div>
-        <div class="bdayRow"><div class="bdayCountdown">—</div><button class="bdayPayBtn" type="button" onclick="openIngAppOnly();">💸 Uitbetalen</button><button class="bdayCongratsBtn" type="button" onclick="sendCongrats(this);">🎉 Feliciteren</button></div>
-      </div>
-      <div class="bdayTile" data-bday="26-06">
-        <div class="bdayName">Chloé</div><div class="bdayDate">26-06-2017</div>
-        <div class="bdayRow"><div class="bdayCountdown">—</div><button class="bdayPayBtn" type="button" onclick="openIngAppOnly();">💸 Uitbetalen</button><button class="bdayCongratsBtn" type="button" onclick="sendCongrats(this);">🎉 Feliciteren</button></div>
-      </div>
-      <div class="bdayTile" data-bday="28-06">
-        <div class="bdayName">Devan</div><div class="bdayDate">28-06-2014</div>
-        <div class="bdayRow"><div class="bdayCountdown">—</div><button class="bdayPayBtn" type="button" onclick="openIngAppOnly();">💸 Uitbetalen</button><button class="bdayCongratsBtn" type="button" onclick="sendCongrats(this);">🎉 Feliciteren</button></div>
-      </div>
-      <div class="bdayTile" data-bday="31-10">
-        <div class="bdayName">Shreya</div><div class="bdayDate">31-10-2015</div>
-        <div class="bdayRow"><div class="bdayCountdown">—</div><button class="bdayPayBtn" type="button" onclick="openIngAppOnly();">💸 Uitbetalen</button><button class="bdayCongratsBtn" type="button" onclick="sendCongrats(this);">🎉 Feliciteren</button></div>
-      </div>
-      <div class="bdayTile" data-bday="29-12">
-        <div class="bdayName">Amaya</div><div class="bdayDate">29-12-2022</div>
-        <div class="bdayRow"><div class="bdayCountdown">—</div><button class="bdayPayBtn" type="button" onclick="openIngAppOnly();">💸 Uitbetalen</button><button class="bdayCongratsBtn" type="button" onclick="sendCongrats(this);">🎉 Feliciteren</button></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="sheet" id="beheerSheet">
-    <div class="panel">
-      <div class="panelHeader"><button class="closeX" data-close="beheerSheet">✕</button><div class="hdrTitle"><h3>Beheer</h3></div></div>
-      <div class="beheerGrid">
-        <button class="bTile" data-open="statusSheet"><div class="btIcon">✅</div><div class="btText"><div class="btT">Status bijwerken</div><div class="btS">Betaald / niet betaald</div></div></button>
-        <button class="bTile" data-open="openSheet"><div class="btIcon">🔴</div><div class="btText"><div class="btT">Niet betaald</div><div class="btS">Openstaande gezinnen</div></div><span class="btBadge" id="openCountBadge" style="background:red;border-radius:50%;padding:2px 6px;font-size:12px;display:none;">0</span></button>
-        <button class="bTile" data-open="whatsSheet"><div class="btIcon">💬</div><div class="btText"><div class="btT">WhatsApp</div><div class="btS">Herinnering / bedankje</div></div></button>
-        <button class="bTile" data-open="overSheet"><div class="btIcon">📊</div><div class="btText"><div class="btT">Overzicht</div><div class="btS">Stand delen / PDF</div></div></button>
-        <button class="bTile" data-open="settingsSheet"><div class="btIcon">⚙️</div><div class="btText"><div class="btT">Instellingen</div><div class="btS">Bedragen • Links</div></div></button>
-      </div>
-    </div>
-  </div>
-
-  <div class="sheet" id="statusSheet">
-    <div class="panel">
-      <div class="panelHeader">
-        <button class="closeX" data-close="statusSheet">✕</button>
-        <div><h3 style="margin:0">Status bijwerken</h3><div class="kids" id="statusContext" style="font-size:12px;color:var(--text-muted)"></div></div>
-        <button class="btnSaveTop" id="saveStatusTop">Opslaan</button>
-      </div>
-      <div class="panelContent">
-        <div style="display:flex; gap:10px; margin-bottom:12px;">
-          <button id="btnAllPaid" class="btnQuick" style="flex:1;background:#064e3b;color:#6ee7b7;border:1px solid #059669;border-radius:8px;padding:8px;cursor:pointer;font-weight:bold">✓ Iedereen betaald</button>
-          <button id="btnResetAll" class="btnQuick" style="flex:1;background:#450a0a;color:#fca5a5;border:1px solid #b91c1c;border-radius:8px;padding:8px;cursor:pointer;font-weight:bold">✕ Reset alles</button>
-        </div>
-        <div id="statusList"></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="sheet" id="openSheet">
-    <div class="panel">
-      <div class="panelHeader"><button class="closeX" data-close="openSheet">✕</button><h3 style="margin:0">Niet betaald</h3></div>
-      <div class="panelContent">
-        <div class="kids" style="margin-bottom:8px;color:var(--text-muted)">Actie vereist voor deze maand</div>
-        <div id="openList" style="display:grid;gap:10px"></div>
-        <div class="actions"><button class="btn" id="btnReminder">⏰ Herinnering sturen</button></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="sheet" id="whatsSheet">
-    <div class="panel">
-      <div class="panelHeader"><button class="closeX" data-close="whatsSheet">✕</button><h3 style="margin:0">WhatsApp</h3></div>
-      <div class="panelContent">
-        <div class="kids" id="whatsContext" style="color:var(--text-muted);margin-bottom:12px"></div>
-        <div class="card" style="margin-top:10px;display:block">
-          <b>Snelle acties</b>
-          <div class="actions" style="margin-top:10px">
-            <button class="btn" id="waReminder">⏰ Herinnering (openstaand)</button>
-            <button class="btn2" id="waThanks">✅ Bedankje</button>
-            <button class="btn2" id="waShare">📊 Status delen</button>
-            <button class="btn2" id="waPayDates">📅 Betaaldata jaar</button>
-            <button class="btn2" id="downloadIcsBtn" style="background:#eab308;color:#000;border:1px solid #facc15">📅 Zet in Agenda (iPhone / Google)</button>
-            <div style="margin-top:8px;font-size:11px;color:var(--text-muted);line-height:1.4">
-              <b>📱 iPhone instructie:</b><br>
-              1. Klik op de knop en kies <b>Download</b>.<br>
-              2. Tik op het <b>pijltje (⬇️)</b> in je adresbalk (of ga naar Bestanden).<br>
-              3. Tik op <b>betaaldata...ics</b> en kies <b>"Voeg toe aan agenda"</b>.
-            </div>
-          </div>
-        </div>
-        <div class="card" style="margin-top:10px;display:block">
-          <b>Betaallink</b>
-          <div class="kids" id="payLinkPreview" style="margin-top:8px;word-break:break-word;font-size:11px;color:var(--text-muted)"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="sheet" id="overSheet">
-    <div class="panel">
-      <div class="panelHeader"><button class="closeX" data-close="overSheet">✕</button><h3 style="margin:0">Overzicht</h3></div>
-      <div class="panelContent">
-        <div class="kids" id="overContext" style="margin-bottom:10px;color:var(--text-muted)"></div>
-        <div class="cards" style="grid-template-columns:1fr;gap:10px;margin-top:10px">
-          <div class="card"><div class="left"><b>💰 In pot (t/m maand)</b></div><div class="right"><div class="amt" id="ovIn">€ 0,00</div></div></div>
-          <div class="card"><div class="left"><b>⏳ Totaal open (t/m maand)</b></div><div class="right"><div class="amt" id="ovOpen">€ 0,00</div></div></div>
-          <div class="card"><div class="left"><b>✅ Betaald / Open (mnd)</b></div><div class="right"><div class="amt" id="ovCount">0/8</div><div class="kids" id="ovCount2">open: 0</div></div></div>
-        </div>
-        <div class="card" style="margin-top:10px;display:block">
-          <b>📄 Acties</b>
-          <div class="actions" style="margin-top:10px">
-            <button class="btn" id="btnPrint">Print / PDF</button>
-            <button class="btn2" id="btnOverShare">Delen via WhatsApp</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="sheet" id="settingsSheet">
-    <div class="panel">
-      <div class="panelHeader"><button class="closeX" data-close="settingsSheet">✕</button><div class="hdrTitle"><h3>Instellingen</h3></div><button class="btnSaveTop" id="saveSettingsBtn">Opslaan</button></div>
-      <div class="panelContent">
-        <div class="card" style="display:block">
-          <div class="inputGroup"><label>Familiepot bedrag (normaal)</label><input type="number" step="0.01" id="setFam"></div>
-          <div class="inputGroup"><label>Familiepot bedrag Anisa</label><input type="number" step="0.01" id="setAni"></div>
-          <div class="inputGroup"><label>Kinderpot bedrag</label><input type="number" step="0.01" id="setKid"></div>
-          <div class="inputGroup"><label>Betaallink Familiepot</label><textarea id="setLinkFam" rows="2"></textarea></div>
-          <div class="inputGroup"><label>Betaallink Kinderpot</label><textarea id="setLinkKid" rows="2"></textarea></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
+  <div class="cards" id="cards"></div>
 </div>
-
+<div class="section" id="birthdaySection" style="display:none;">
+  <div class="sectionHead"><div class="sectionTitle">🎂 Kinderverjaardagen</div></div>
+  <div class="bdayGrid">
+    <div class="bdayTile" data-bday="04-04">
+      <div class="bdayName">Naleya</div><div class="bdayDate">04-04-2020</div>
+      <div class="bdayRow"><div class="bdayCountdown">—</div><button class="bdayPayBtn" type="button" onclick="openIngAppOnly();">💸 Uitbetalen</button><button class="bdayCongratsBtn" type="button" onclick="sendCongrats(this);">🎉 Feliciteren</button></div>
+    </div>
+    <div class="bdayTile" data-bday="21-04">
+      <div class="bdayName">Shira</div><div class="bdayDate">21-04-2015</div>
+      <div class="bdayRow"><div class="bdayCountdown">—</div><button class="bdayPayBtn" type="button" onclick="openIngAppOnly();">💸 Uitbetalen</button><button class="bdayCongratsBtn" type="button" onclick="sendCongrats(this);">🎉 Feliciteren</button></div>
+    </div>
+    <div class="bdayTile" data-bday="26-06">
+      <div class="bdayName">Chloé</div><div class="bdayDate">26-06-2017</div>
+      <div class="bdayRow"><div class="bdayCountdown">—</div><button class="bdayPayBtn" type="button" onclick="openIngAppOnly();">💸 Uitbetalen</button><button class="bdayCongratsBtn" type="button" onclick="sendCongrats(this);">🎉 Feliciteren</button></div>
+    </div>
+    <div class="bdayTile" data-bday="28-06">
+      <div class="bdayName">Devan</div><div class="bdayDate">28-06-2014</div>
+      <div class="bdayRow"><div class="bdayCountdown">—</div><button class="bdayPayBtn" type="button" onclick="openIngAppOnly();">💸 Uitbetalen</button><button class="bdayCongratsBtn" type="button" onclick="sendCongrats(this);">🎉 Feliciteren</button></div>
+    </div>
+    <div class="bdayTile" data-bday="31-10">
+      <div class="bdayName">Shreya</div><div class="bdayDate">31-10-2015</div>
+      <div class="bdayRow"><div class="bdayCountdown">—</div><button class="bdayPayBtn" type="button" onclick="openIngAppOnly();">💸 Uitbetalen</button><button class="bdayCongratsBtn" type="button" onclick="sendCongrats(this);">🎉 Feliciteren</button></div>
+    </div>
+    <div class="bdayTile" data-bday="29-12">
+      <div class="bdayName">Amaya</div><div class="bdayDate">29-12-2022</div>
+      <div class="bdayRow"><div class="bdayCountdown">—</div><button class="bdayPayBtn" type="button" onclick="openIngAppOnly();">💸 Uitbetalen</button><button class="bdayCongratsBtn" type="button" onclick="sendCongrats(this);">🎉 Feliciteren</button></div>
+    </div>
+  </div>
+</div>
+<div class="sheet" id="beheerSheet">
+  <div class="panel">
+    <div class="panelHeader"><button class="closeX" data-close="beheerSheet">✕</button><div class="hdrTitle"><h3>Beheer</h3></div></div>
+    <div class="beheerGrid">
+      <button class="bTile" data-open="statusSheet"><div class="btIcon">✅</div><div class="btText"><div class="btT">Status bijwerken</div><div class="btS">Betaald / niet betaald</div></div></button>
+      <button class="bTile" data-open="openSheet"><div class="btIcon">🔴</div><div class="btText"><div class="btT">Niet betaald</div><div class="btS">Openstaande gezinnen</div></div><span class="btBadge" id="openCountBadge" style="background:red;border-radius:50%;padding:2px 6px;font-size:12px;display:none;">0</span></button>
+      <button class="bTile" data-open="whatsSheet"><div class="btIcon">💬</div><div class="btText"><div class="btT">WhatsApp</div><div class="btS">Herinnering / bedankje</div></div></button>
+      <button class="bTile" data-open="overSheet"><div class="btIcon">📊</div><div class="btText"><div class="btT">Overzicht</div><div class="btS">Stand delen / PDF</div></div></button>
+      <button class="bTile" data-open="settingsSheet"><div class="btIcon">⚙️</div><div class="btText"><div class="btT">Instellingen</div><div class="btS">Bedragen • Links</div></div></button>
+    </div>
+  </div>
+</div>
+<div class="sheet" id="statusSheet">
+  <div class="panel">
+    <div class="panelHeader">
+      <button class="closeX" data-close="statusSheet">✕</button>
+      <div><h3 style="margin:0">Status bijwerken</h3><div class="kids" id="statusContext" style="font-size:12px;color:var(--text-muted)"></div></div>
+      <button class="btnSaveTop" id="saveStatusTop">Opslaan</button>
+    </div>
+    <div class="panelContent">
+	    <div style="display:flex; gap:10px; margin-bottom:12px;">
+	      <button id="btnAllPaid" class="btnQuick" style="flex:1;background:#064e3b;color:#6ee7b7;border:1px solid #059669;border-radius:8px;padding:8px;cursor:pointer;font-weight:bold">✓ Iedereen betaald</button>
+	      <button id="btnResetAll" class="btnQuick" style="flex:1;background:#450a0a;color:#fca5a5;border:1px solid #b91c1c;border-radius:8px;padding:8px;cursor:pointer;font-weight:bold">✕ Reset alles</button>
+	    </div>
+        <div id="statusList"></div>
+    </div>
+  </div>
+</div>
+<div class="sheet" id="openSheet">
+  <div class="panel">
+    <div class="panelHeader"><button class="closeX" data-close="openSheet">✕</button><h3 style="margin:0">Niet betaald</h3></div>
+    <div class="panelContent">
+      <div class="kids" style="margin-bottom:8px;color:var(--text-muted)">Actie vereist voor deze maand</div>
+      <div id="openList" style="display:grid;gap:10px"></div>
+      <div class="actions"><button class="btn" id="btnReminder">⏰ Herinnering sturen</button></div>
+    </div>
+  </div>
+</div>
+<div class="sheet" id="whatsSheet">
+  <div class="panel">
+    <div class="panelHeader"><button class="closeX" data-close="whatsSheet">✕</button><h3 style="margin:0">WhatsApp</h3></div>
+    <div class="panelContent">
+      <div class="kids" id="whatsContext" style="color:var(--text-muted);margin-bottom:12px"></div>
+      <div class="card" style="margin-top:10px;display:block">
+        <b>Snelle acties</b>
+        <div class="actions" style="margin-top:10px">
+          <button class="btn" id="waReminder">⏰ Herinnering (openstaand)</button>
+          <button class="btn2" id="waThanks">✅ Bedankje</button>
+          <button class="btn2" id="waShare">📊 Status delen</button>
+          <button class="btn2" id="waPayDates">📅 Betaaldata jaar</button>
+          <button class="btn2" id="downloadIcsBtn" style="background:#eab308;color:#000;border:1px solid #facc15">📅 Zet in Agenda (iPhone / Google)</button>
+          <div style="margin-top:8px;font-size:11px;color:var(--text-muted);line-height:1.4">
+            <b>📱 iPhone instructie:</b><br>
+            1. Klik op de knop en kies <b>Download</b>.<br>
+            2. Tik op het <b>pijltje (⬇️)</b> in je adresbalk (of ga naar Bestanden).<br>
+            3. Tik op <b>betaaldata...ics</b> en kies <b>"Voeg toe aan agenda"</b>.
+          </div>
+        </div>
+      </div>
+      <div class="card" style="margin-top:10px;display:block">
+        <b>Betaallink</b>
+        <div class="kids" id="payLinkPreview" style="margin-top:8px;word-break:break-word;font-size:11px;color:var(--text-muted)"></div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="sheet" id="overSheet">
+  <div class="panel">
+    <div class="panelHeader"><button class="closeX" data-close="overSheet">✕</button><h3 style="margin:0">Overzicht</h3></div>
+    <div class="panelContent">
+      <div class="kids" id="overContext" style="margin-bottom:10px;color:var(--text-muted)"></div>
+      <div class="cards" style="grid-template-columns:1fr;gap:10px;margin-top:10px">
+        <div class="card"><div class="left"><b>💰 In pot (t/m maand)</b></div><div class="right"><div class="amt" id="ovIn">€ 0,00</div></div></div>
+        <div class="card"><div class="left"><b>⏳ Totaal open (t/m maand)</b></div><div class="right"><div class="amt" id="ovOpen">€ 0,00</div></div></div>
+        <div class="card"><div class="left"><b>✅ Betaald / Open (mnd)</b></div><div class="right"><div class="amt" id="ovCount">0/8</div><div class="kids" id="ovCount2">open: 0</div></div></div>
+      </div>
+      <div class="card" style="margin-top:10px;display:block">
+        <b>📄 Acties</b>
+        <div class="actions" style="margin-top:10px">
+          <button class="btn" id="btnPrint">Print / PDF</button>
+          <button class="btn2" id="btnOverShare">Delen via WhatsApp</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="sheet" id="settingsSheet">
+  <div class="panel">
+    <div class="panelHeader"><button class="closeX" data-close="settingsSheet">✕</button><div class="hdrTitle"><h3>Instellingen</h3></div><button class="btnSaveTop" id="saveSettingsBtn">Opslaan</button></div>
+    <div class="panelContent">
+      <div class="card" style="display:block">
+        <div class="inputGroup"><label>Familiepot bedrag (normaal)</label><input type="number" step="0.01" id="setFam"></div>
+        <div class="inputGroup"><label>Familiepot bedrag Anisa</label><input type="number" step="0.01" id="setAni"></div>
+        <div class="inputGroup"><label>Kinderpot bedrag</label><input type="number" step="0.01" id="setKid"></div>
+        <div class="inputGroup"><label>Betaallink Familiepot</label><textarea id="setLinkFam" rows="2"></textarea></div>
+        <div class="inputGroup"><label>Betaallink Kinderpot</label><textarea id="setLinkKid" rows="2"></textarea></div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import {
   getAuth,
   GoogleAuthProvider,
   onAuthStateChanged,
-  signInWithRedirect,
-  getRedirectResult,
   signInWithPopup
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getDatabase, ref, set, onValue, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAhbamryd9nD2zIgrbmcbIcsvUENkAw2as",
@@ -453,60 +371,17 @@ const firebaseConfig = {
   appId: "1:351310866648:web:3ed7ca196ba6831fa94fad"
 };
 
-const fbApp = initializeApp(firebaseConfig);
+const app = initializeApp(firebaseConfig);
 
 // AUTH
-const auth = getAuth(fbApp);
+const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
-provider.setCustomParameters({ prompt: "select_account" });
 
 // DB
-const db = getDatabase(fbApp);
+const db = getDatabase(app);
 const dbRef = ref(db, "potState");
 
-// ===== UI HELPERS =====
-const q = (id) => document.getElementById(id);
-const loadingOverlay = q("loadingOverlay");
-const loadingSmall = q("loadingSmall");
-const offlineBadge = q("offlineBadge");
-const loginCard = q("loginCard");
-const loginMsg = q("loginMsg");
-const btnLoginPopup = q("btnLoginPopup");
-const btnLoginRedirect = q("btnLoginRedirect");
-const btnUseOffline = q("btnUseOffline");
-
-function setLoading(msg, small=""){
-  if (loadingOverlay) loadingOverlay.style.display = "grid";
-  if (typeof msg === "string") loadingOverlay.firstChild.textContent = msg;
-  if (loadingSmall) loadingSmall.textContent = small || "";
-}
-function hideLoading(){
-  if (loadingOverlay) loadingOverlay.style.display = "none";
-}
-function showLoginPanel(message){
-  if (loginMsg) loginMsg.textContent = message || "Login nodig.";
-  if (loginCard) loginCard.style.display = "block";
-  hideLoading();
-}
-function setOffline(on){
-  if (offlineBadge) offlineBadge.style.display = on ? "block" : "none";
-}
-
-// ===== FAILSAFE: echte fouten zichtbaar =====
-window.addEventListener("error", (e) => {
-  hideLoading();
-  console.error("JS error:", e);
-  alert("JS error: " + (e?.message || "onbekend"));
-});
-window.addEventListener("unhandledrejection", (e) => {
-  hideLoading();
-  console.error("Promise error:", e?.reason);
-  alert("Promise error: " + (e?.reason?.message || e?.reason || "onbekend"));
-});
-
-// ===== STATE + LOCAL CACHE =====
-const LOCAL_KEY = "familiepot_state_v1";
-
+// STATE
 let appState = {
   _ver: "final_cloud",
   mins: { fam: 32.0, ani: 16.0, kid: 15.0 },
@@ -516,96 +391,85 @@ let appState = {
 };
 let isDataLoaded = false;
 
-function loadLocal(){
-  try{
-    const raw = localStorage.getItem(LOCAL_KEY);
-    if(!raw) return null;
-    const parsed = JSON.parse(raw);
-    if(parsed && typeof parsed === "object") return parsed;
-    return null;
-  }catch(_){ return null; }
-}
-function saveLocal(){
-  try{
-    localStorage.setItem(LOCAL_KEY, JSON.stringify(appState));
-  }catch(_){}
-}
+const q = (id) => document.getElementById(id);
+const pot = q("pot"),
+  year = q("year"),
+  month = q("month"),
+  paydate = q("paydate");
+const cards = q("cards"),
+  t_in = q("t_in"),
+  t_open = q("t_open"),
+  t_paid = q("t_paid"),
+  t_due = q("t_due"),
+  openCountBadge = q("openCountBadge");
+const loadingOverlay = q("loadingOverlay");
 
-// ===== DATA =====
-const payDates = {"2026":{"1":"28-01-2026","2":"25-02-2026","3":"25-03-2026","4":"29-04-2026","5":"27-05-2026","6":"24-06-2026","7":"29-07-2026","8":"26-08-2026","9":"30-09-2026","10":"28-10-2026","11":"25-11-2026","12":"30-12-2026"},"2027":{"1":"27-01-2027","2":"24-02-2027","3":"31-03-2027","4":"28-04-2027","5":"26-05-2027","6":"30-06-2027","7":"28-07-2027","8":"25-08-2027","9":"29-09-2027","10":"27-10-2027","11":"24-11-2027","12":"29-12-2027"},"2028":{"1":"26-01-2028","2":"23-02-2028","3":"29-03-2028","4":"26-04-2028","5":"31-05-2028","6":"28-06-2028","7":"26-07-2028","8":"30-08-2028","9":"27-09-2028","10":"25-10-2028","11":"29-11-2028","12":"27-12-2028"},"2029":{"1":"31-01-2029","2":"28-02-2029","3":"28-03-2029","4":"25-04-2029","5":"30-05-2029","6":"27-06-2029","7":"25-07-2029","8":"29-08-2029","9":"26-09-2029","10":"31-10-2029","11":"28-11-2029","12":"26-12-2029"},"2030":{"1":"30-01-2030","2":"27-02-2030","3":"27-03-2030","4":"24-04-2030","5":"29-05-2030","6":"26-06-2030","7":"31-07-2030","8":"28-08-2030","9":"25-09-2030","10":"30-10-2030","11":"27-11-2030","12":"25-12-2030"},"2031":{"1":"29-01-2031","2":"26-02-2031","3":"26-03-2031","4":"30-04-2031","5":"28-05-2031","6":"25-06-2031","7":"30-07-2031","8":"27-08-2031","9":"24-09-2031","10":"29-10-2031","11":"26-11-2031","12":"31-12-2031"},"2032":{"1":"28-01-2032","2":"25-02-2032","3":"31-03-2032","4":"28-04-2032","5":"26-05-2032","6":"30-06-2032","7":"28-07-2032","8":"25-08-2032","9":"29-09-2032","10":"27-10-2032","11":"24-11-2032","12":"29-12-2032"},"2033":{"1":"26-01-2033","2":"23-02-2033","3":"30-03-2033","4":"27-04-2033","5":"25-05-2033","6":"29-06-2033","7":"27-07-2033","8":"31-08-2033","9":"28-09-2033","10":"26-10-2033","11":"30-11-2033","12":"28-12-2033"},"2034":{"1":"25-01-2034","2":"22-02-2034","3":"29-03-2034","4":"26-04-2034","5":"31-05-2034","6":"28-06-2034","7":"26-07-2034","8":"30-08-2034","9":"27-09-2034","10":"25-10-2034","11":"29-11-2034","12":"27-12-2034"}};
-const YEARS = [2026,2027,2028,2029,2030,2031,2032,2033,2034];
-const monthNames = ["","Januari","Februari","Maart","April","Mei","Juni","Juli","Augustus","September","Oktober","November","December"];
+// DATA
+const payDates = {
+  "2026": { "1": "28-01-2026", "2": "25-02-2026", "3": "25-03-2026", "4": "29-04-2026", "5": "27-05-2026", "6": "24-06-2026", "7": "29-07-2026", "8": "26-08-2026", "9": "30-09-2026", "10": "28-10-2026", "11": "25-11-2026", "12": "30-12-2026" },
+  "2027": { "1": "27-01-2027", "2": "24-02-2027", "3": "31-03-2027", "4": "28-04-2027", "5": "26-05-2027", "6": "30-06-2027", "7": "28-07-2027", "8": "25-08-2027", "9": "29-09-2027", "10": "27-10-2027", "11": "24-11-2027", "12": "29-12-2027" },
+  "2028": { "1": "26-01-2028", "2": "23-02-2028", "3": "29-03-2028", "4": "26-04-2028", "5": "31-05-2028", "6": "28-06-2028", "7": "26-07-2028", "8": "30-08-2028", "9": "27-09-2028", "10": "25-10-2028", "11": "29-11-2028", "12": "27-12-2028" },
+  "2029": { "1": "31-01-2029", "2": "28-02-2029", "3": "28-03-2029", "4": "25-04-2029", "5": "30-05-2029", "6": "27-06-2029", "7": "25-07-2029", "8": "29-08-2029", "9": "26-09-2029", "10": "31-10-2029", "11": "28-11-2029", "12": "26-12-2029" },
+  "2030": { "1": "30-01-2030", "2": "27-02-2030", "3": "27-03-2030", "4": "24-04-2030", "5": "29-05-2030", "6": "26-06-2030", "7": "31-07-2030", "8": "28-08-2030", "9": "25-09-2030", "10": "30-10-2030", "11": "27-11-2030", "12": "25-12-2030" },
+  "2031": { "1": "29-01-2031", "2": "26-02-2031", "3": "26-03-2031", "4": "30-04-2031", "5": "28-05-2031", "6": "25-06-2031", "7": "30-07-2031", "8": "27-08-2031", "9": "24-09-2031", "10": "29-10-2031", "11": "26-11-2031", "12": "31-12-2031" },
+  "2032": { "1": "28-01-2032", "2": "25-02-2032", "3": "31-03-2032", "4": "28-04-2032", "5": "26-05-2032", "6": "30-06-2032", "7": "28-07-2032", "8": "25-08-2032", "9": "29-09-2032", "10": "27-10-2032", "11": "24-11-2032", "12": "29-12-2032" },
+  "2033": { "1": "26-01-2033", "2": "23-02-2033", "3": "30-03-2033", "4": "27-04-2033", "5": "25-05-2033", "6": "29-06-2033", "7": "27-07-2033", "8": "31-08-2033", "9": "28-09-2033", "10": "26-10-2033", "11": "30-11-2033", "12": "28-12-2033" },
+  "2034": { "1": "25-01-2034", "2": "22-02-2034", "3": "29-03-2034", "4": "26-04-2034", "5": "31-05-2034", "6": "28-06-2034", "7": "26-07-2034", "8": "30-08-2034", "9": "27-09-2034", "10": "25-10-2034", "11": "29-11-2034", "12": "27-12-2034" }
+};
+
+const YEARS = [2026, 2027, 2028, 2029, 2030, 2031, 2032, 2033, 2034];
+const monthNames = ["", "Januari", "Februari", "Maart", "April", "Mei", "Juni", "Juli", "Augustus", "September", "Oktober", "November", "December"];
 const families = [
-  {name:"Moek & Kawita", kids:"Shreya"},
-  {name:"Jennifer & Berry", kids:"Shira, Chloé"},
-  {name:"Armando & Sindy", kids:"Amaya"},
-  {name:"Gaby & Roland", kids:"Devan"},
-  {name:"Daan & Richella", kids:"—"},
-  {name:"Geetha & Loek", kids:"—"},
-  {name:"Roy & Ervinna", kids:"—"},
-  {name:"Anisa", kids:"Naleya"}
+  { name: "Moek & Kawita", kids: "Shreya" },
+  { name: "Jennifer & Berry", kids: "Shira, Chloé" },
+  { name: "Armando & Sindy", kids: "Amaya" },
+  { name: "Gaby & Roland", kids: "Devan" },
+  { name: "Daan & Richella", kids: "—" },
+  { name: "Geetha & Loek", kids: "—" },
+  { name: "Roy & Ervinna", kids: "—" },
+  { name: "Anisa", kids: "Naleya" }
 ];
+
 const DEFAULT_LINKS = {
   familie: "https://www.ing.nl/de-ing/payreq?trxid=22U30oXxCkdS0OqDNplSZVFfokIr2Lwm&flow-step=payment-request",
   kinder: "https://www.ing.nl/de-ing/payreq?trxid=FCcxWXtL7m0te2x0y8tH05gtGy1CgzhU&flow-step=payment-request"
 };
 
-// ===== CORE HELPERS =====
-function euro(n){ const v = Number(n); if (!Number.isFinite(v)) return "€ 0,00"; return "€ " + v.toFixed(2).replace(".", ","); }
-function key(p, y, m, f){ return p + "|" + y + "|" + m + "|" + f; }
-function minFor(p, f, mins){ return p === "familie" ? (f === "Anisa" ? mins.ani : mins.fam) : mins.kid; }
-function safePayDate(y,m){ const yy = String(y), mm = String(m); if (payDates[yy] && payDates[yy][mm]) return payDates[yy][mm]; return "—"; }
-
-function saveCloud(){
-  // cloud save + local mirror
-  saveLocal();
-  return set(dbRef, appState);
+// ===== DB SAVE =====
+function saveCloud() {
+  set(dbRef, appState);
 }
 
-function normalizeState(){
-  if(!appState.mins) appState.mins = { fam: 32.0, ani: 16.0, kid: 15.0 };
-  if(!appState.links) appState.links = {...DEFAULT_LINKS};
-  if(!appState.links.familie) appState.links.familie = DEFAULT_LINKS.familie;
-  if(!appState.links.kinder) appState.links.kinder = DEFAULT_LINKS.kinder;
-  if(!appState.entries) appState.entries = {};
-  if(!appState.memo) appState.memo = "";
+// ===== HELPERS =====
+function euro(n) {
+  const v = Number(n);
+  if (!Number.isFinite(v)) return "€ 0,00";
+  return "€ " + v.toFixed(2).replace(".", ",");
 }
-
-function applyOfflineState(){
-  const local = loadLocal();
-  if(local){
-    appState = local;
-    normalizeState();
-  }else{
-    normalizeState();
-    appState.links = {...DEFAULT_LINKS};
-  }
-  isDataLoaded = true;
-  setOffline(true);
-  hideLoading();
-  window.render();
+function key(p, y, m, f) { return p + "|" + y + "|" + m + "|" + f; }
+function minFor(p, f, mins) { return p === "familie" ? (f === "Anisa" ? mins.ani : mins.fam) : mins.kid; }
+function safePayDate(y, m) {
+  const yy = String(y), mm = String(m);
+  if (payDates[yy] && payDates[yy][mm]) return payDates[yy][mm];
+  return "—";
 }
-
-// ===== UI WIRING =====
-const pot=q("pot"), year=q("year"), month=q("month"), paydate=q("paydate");
-const cards=q("cards"), t_in=q("t_in"), t_open=q("t_open"), t_paid=q("t_paid"), t_due=q("t_due"), openCountBadge=q("openCountBadge");
-const startGate=q("startGate"), appWrap=q("appWrap");
-
-function setTheme(){
-  const ap = q("activePot");
-  if(ap){ ap.textContent = "Pot: " + (pot.value === "familie" ? "Familiepot" : "Kinderpot"); }
+function setTheme() {
+  const ap = document.getElementById("activePot");
+  if (ap) ap.textContent = "Pot: " + (pot.value === "familie" ? "Familiepot" : "Kinderpot");
   document.body.dataset.pot = pot.value;
 }
 
-window.render = function(){
-  if(!isDataLoaded) return;
-  setTheme();
+// ===== RENDER =====
+window.render = function () {
+  if (!isDataLoaded) return;
 
+  setTheme();
   const s = appState, p = pot.value, y = +year.value, m = +month.value;
-  paydate.textContent = safePayDate(y,m);
+
+  paydate.textContent = safePayDate(y, m);
 
   const mf = q("memoField");
-  if(mf) mf.value = s.memo || "";
+  if (mf) mf.value = s.memo || "";
 
   const bsec = q("birthdaySection");
   if (bsec) bsec.style.display = (p === "kinder") ? "block" : "none";
@@ -614,12 +478,12 @@ window.render = function(){
   let paidTo = 0, openTo = 0, paidCnt = 0, dueM = 0, openNames = [];
 
   cards.innerHTML = families.map(f => {
-    const e = s.entries[key(p, y, m, f.name)] || {status: "Niet betaald"};
+    const e = s.entries[key(p, y, m, f.name)] || { status: "Niet betaald" };
     const min = minFor(p, f.name, s.mins); dueM += min;
 
     let famOpen = 0;
     for (let mm = 1; mm <= m; mm++) {
-      const e2 = s.entries[key(p, y, mm, f.name)] || {status: "Niet betaald"};
+      const e2 = s.entries[key(p, y, mm, f.name)] || { status: "Niet betaald" };
       const a = minFor(p, f.name, s.mins);
       if (e2.status === "Betaald") paidTo += a; else famOpen += a;
     }
@@ -627,7 +491,7 @@ window.render = function(){
     openTo += famOpen;
     if (e.status === "Betaald") paidCnt++; else openNames.push(f.name);
 
-    return `<div class="card"><div class="left"><b>${f.name}</b><div class="kids">Kids: ${f.kids}</div></div><div class="right"><div class="amt">${euro(min)}</div><div class="pill ${e.status==="Betaald"?"ok":"bad"}">${e.status==="Betaald"?"✅ betaald":"❌ open"}</div></div></div>`;
+    return `<div class="card"><div class="left"><b>${f.name}</b><div class="kids">Kids: ${f.kids}</div></div><div class="right"><div class="amt">${euro(min)}</div><div class="pill ${e.status === "Betaald" ? "ok" : "bad"}">${e.status === "Betaald" ? "✅ betaald" : "❌ open"}</div></div></div>`;
   }).join("");
 
   t_in.textContent = euro(paidTo);
@@ -637,42 +501,21 @@ window.render = function(){
 
   openCountBadge.textContent = openNames.length;
   openCountBadge.style.display = openNames.length ? "grid" : "none";
+
   window.__openNames = openNames;
 };
 
-// memo
+// ===== MEMO =====
 q("saveMemo").onclick = () => {
   appState.memo = q("memoField").value;
-  // offline-safe
-  if(offlineBadge.style.display === "block"){
-    saveLocal();
-  }else{
-    saveCloud().catch(()=>saveLocal());
-  }
-  const btn = q("saveMemo"); const oldTxt = btn.textContent;
-  btn.textContent = "✔"; setTimeout(() => btn.textContent = oldTxt, 1200);
+  saveCloud();
+  const btn = q("saveMemo");
+  const oldTxt = btn.textContent;
+  btn.textContent = "✔";
+  setTimeout(() => (btn.textContent = oldTxt), 2000);
 };
 
-// start gate
-window.openAppWithPot = function(p){
-  pot.value = p;
-  startGate.style.display="none";
-  appWrap.hidden=false;
-  window.render();
-}
-q("chooseFamilie").onclick = () => openAppWithPot("familie");
-q("chooseKinder").onclick = () => openAppWithPot("kinder");
-q("goHome").onclick = () => { appWrap.hidden=true; startGate.style.display="flex"; };
-
-// selects
-YEARS.forEach(y => { const o=document.createElement("option"); o.value=y; o.textContent=y; year.appendChild(o); });
-for(let i=1;i<=12;i++){ const o=document.createElement("option"); o.value=i; o.textContent=monthNames[i]; month.appendChild(o); }
-const now = new Date();
-year.value = YEARS.includes(now.getFullYear())?now.getFullYear():YEARS[0];
-month.value = now.getMonth()+1;
-year.onchange=month.onchange=pot.onchange=window.render;
-
-// sheets open/close
+// ===== SHEETS / BUTTONS =====
 document.addEventListener("click", e => {
   const tile = e.target.closest(".bTile[data-open]");
   if (tile) {
@@ -687,9 +530,10 @@ document.addEventListener("click", e => {
   const close = e.target.closest(".closeX[data-close]");
   if (close) q(close.dataset.close).classList.remove("show");
 });
+
 q("hdrBeheer").onclick = () => q("beheerSheet").classList.add("show");
 
-// status
+// ===== STATUS =====
 function openStatus() {
   const s = appState, p = pot.value, y = +year.value, m = +month.value;
   q("statusContext").textContent = `${p === "familie" ? "Familiepot" : "Kinderpot"} – ${monthNames[m]} ${y}`;
@@ -716,21 +560,16 @@ function openStatus() {
 
   q("statusSheet").classList.add("show");
 }
+
 q("saveStatusTop").onclick = () => {
   const p = pot.value, y = +year.value, m = +month.value;
   document.querySelectorAll("#statusList select").forEach(sel => {
     appState.entries[key(p, y, m, sel.dataset.fam)] = { status: sel.value };
   });
-
-  if(offlineBadge.style.display === "block"){
-    saveLocal();
-  }else{
-    saveCloud().catch(()=>{ saveLocal(); setOffline(true); });
-  }
-
+  saveCloud();
   q("statusSheet").classList.remove("show");
-  window.render();
 };
+
 q("btnAllPaid").onclick = () => {
   document.querySelectorAll("#statusList select").forEach(s => { s.value = "Betaald"; s.dispatchEvent(new Event("change")); });
 };
@@ -738,7 +577,7 @@ q("btnResetAll").onclick = () => {
   document.querySelectorAll("#statusList select").forEach(s => { s.value = "Niet betaald"; s.dispatchEvent(new Event("change")); });
 };
 
-// open list
+// ===== OPEN LIST =====
 function openOpen() {
   const openNames = window.__openNames || [];
   q("openList").innerHTML = !openNames.length
@@ -746,6 +585,7 @@ function openOpen() {
     : openNames.map(n => `<div class="card"><b>${n}</b></div>`).join("");
   q("openSheet").classList.add("show");
 }
+
 q("btnReminder").onclick = () => {
   const open = window.__openNames || [];
   const link = appState.links[pot.value] || "";
@@ -755,27 +595,31 @@ q("btnReminder").onclick = () => {
     `📅 Betaaldatum: ${paydate.textContent}\n\nNog openstaand:\n` +
     `${open.length ? open.map(n => "• " + n).join("\n") : "—"}\n\n` +
     `${link ? "Betaallink:\n" + link + "\n\n" : ""}Alvast super bedankt! 🙏`;
+
   window.open("https://wa.me/?text=" + encodeURIComponent(msg));
 };
 
-// whats
+// ===== WHATS =====
 function openWhats() {
   q("whatsContext").textContent = `${pot.value} – ${monthNames[+month.value]} ${year.value}`;
   q("payLinkPreview").textContent = appState.links[pot.value] || "(geen link)";
   q("whatsSheet").classList.add("show");
 }
 q("waReminder").onclick = q("btnReminder").onclick;
+
 q("waThanks").onclick = () => {
   const pName = pot.value === "familie" ? "Familiepot 💙" : "Kinderpot 💜";
   const msg = `Lieve allemaal, super bedankt! 💖\n\nDe *${pName}* van *${monthNames[+month.value]} ${year.value}* is helemaal compleet! 🎉✅`;
   window.open("https://wa.me/?text=" + encodeURIComponent(msg));
 };
+
 q("waShare").onclick = () => {
   const paid = 8 - (window.__openNames?.length || 0), open = window.__openNames?.length || 0;
   const pName = pot.value === "familie" ? "Familiepot 💙" : "Kinderpot 💜";
   const msg = `📊 *Tussenstand ${pName}* – ${monthNames[+month.value]} ${year.value}\n\n✅ Betaald: ${paid}/8\n⏳ Nog open: ${open}\n\nWe zijn er bijna! 💪`;
   window.open("https://wa.me/?text=" + encodeURIComponent(msg));
 };
+
 window.__waSendPayDates = function () {
   const y = year.value;
   const pName = pot.value === "familie" ? "Familiepot" : "Kinderpot";
@@ -783,8 +627,14 @@ window.__waSendPayDates = function () {
   const dates = payDates[y];
   if (!dates) return alert("Geen data voor " + y);
 
+  const firstDateParts = dates[1].split("-");
+  const gDate = firstDateParts[2] + firstDateParts[1] + firstDateParts[0];
+  const gLink = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=Betaaldag+${pName}&dates=${gDate}T090000Z/${gDate}T100000Z&recur=RRULE:FREQ=MONTHLY;BYDAY=-1WE&details=Vergeet+niet+de+${pName}+over+te+maken!`;
+
   let msg = `Lieve allemaal! 💖\n\nHierbij alvast een handig overzichtje van de betaaldata voor *${y}* van de *${pNameFancy}*. 📅\n\n`;
   for (let i = 1; i <= 12; i++) msg += `• ${monthNames[i]}: ${dates[i]}\n`;
+  msg += `\n💡 Tip: Google Agenda link:\n${gLink}\n`;
+
   window.open("https://wa.me/?text=" + encodeURIComponent(msg));
 };
 q("waPayDates").onclick = window.__waSendPayDates;
@@ -822,7 +672,7 @@ q("downloadIcsBtn").onclick = function () {
   document.body.removeChild(link);
 };
 
-// overview
+// ===== OVERVIEW =====
 function openOver() {
   const s = appState, p = pot.value, y = +year.value, m = +month.value;
   q("overContext").textContent = `${p} – t/m ${monthNames[m]} ${y}`;
@@ -847,7 +697,7 @@ q("btnPrint").onclick = () => window.print();
 q("btnOverShare").onclick = () =>
   window.open("https://wa.me/?text=" + encodeURIComponent(`Overzicht ${q("overContext").textContent}\n💰 In pot: ${q("ovIn").textContent}\n⏳ Open: ${q("ovOpen").textContent}`));
 
-// settings
+// ===== SETTINGS =====
 function loadSettings() {
   const s = appState;
   q("setFam").value = s.mins.fam;
@@ -863,28 +713,54 @@ q("saveSettingsBtn").onclick = () => {
   s.mins.kid = parseFloat(q("setKid").value) || 15;
   s.links.familie = q("setLinkFam").value.trim();
   s.links.kinder = q("setLinkKid").value.trim();
-
-  if(offlineBadge.style.display === "block"){
-    saveLocal();
-  }else{
-    saveCloud().catch(()=>{ saveLocal(); setOffline(true); });
-  }
-
+  saveCloud();
   alert("Opgeslagen!");
-  window.render();
+  render();
 };
 
-// bday
-function __updateBirthdayCountdowns(){
-  document.querySelectorAll(".bdayTile[data-bday]").forEach(t=>{
-    const p = (t.dataset.bday||"").split("-");
-    if(p.length!==2)return;
-    const now = new Date(), today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    let target = new Date(today.getFullYear(), parseInt(p[1])-1, parseInt(p[0]));
-    if(target<today) target = new Date(today.getFullYear()+1, parseInt(p[1])-1, parseInt(p[0]));
-    const diff = Math.round((target-today)/86400000);
+// ===== START GATE =====
+const startGate = q("startGate"), appWrap = q("appWrap");
+window.openAppWithPot = function (p) {
+  pot.value = p;
+  startGate.style.display = "none";
+  appWrap.hidden = false;
+  render();
+};
+q("chooseFamilie").onclick = () => openAppWithPot("familie");
+q("chooseKinder").onclick = () => openAppWithPot("kinder");
+q("goHome").onclick = () => { appWrap.hidden = true; startGate.style.display = "flex"; };
+
+// SELECTS
+YEARS.forEach(y => {
+  const o = document.createElement("option");
+  o.value = y; o.textContent = y;
+  year.appendChild(o);
+});
+for (let i = 1; i <= 12; i++) {
+  const o = document.createElement("option");
+  o.value = i; o.textContent = monthNames[i];
+  month.appendChild(o);
+}
+const now = new Date();
+year.value = YEARS.includes(now.getFullYear()) ? now.getFullYear() : YEARS[0];
+month.value = now.getMonth() + 1;
+
+year.onchange = month.onchange = pot.onchange = render;
+
+// BDAY
+function __updateBirthdayCountdowns() {
+  document.querySelectorAll(".bdayTile[data-bday]").forEach(t => {
+    const p = (t.dataset.bday || "").split("-");
+    if (p.length !== 2) return;
+
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    let target = new Date(today.getFullYear(), parseInt(p[1]) - 1, parseInt(p[0]));
+    if (target < today) target = new Date(today.getFullYear() + 1, parseInt(p[1]) - 1, parseInt(p[0]));
+
+    const diff = Math.round((target - today) / 86400000);
     const el = t.querySelector(".bdayCountdown");
-    if(el) el.textContent = diff===0 ? "🎉 vandaag!" : (diff===1?"⏳ morgen":`⏳ nog ${diff} dagen`);
+    if (el) el.textContent = diff === 0 ? "🎉 vandaag!" : (diff === 1 ? "⏳ morgen" : `⏳ nog ${diff} dagen`);
   });
 }
 
@@ -901,60 +777,69 @@ window.sendCongrats = function (btn) {
   window.open("https://wa.me/?text=" + encodeURIComponent(`${isBoy ? "🧒🎉" : "👧🎉"} *Van harte gefeliciteerd ${name}!* 🎂\n\nFijne verjaardag! 💖✨\n\nLiefs,\nGaby 💐`));
 };
 
-// mini tabs
-(function(){
-  const miniTabs = q("kinderMiniTabs");
-  const tabO = q("tabKinderOverzicht");
-  const tabV = q("tabKinderVerjaardagen");
-  function showO(){
-    const birthday = q("birthdaySection");
-    const ov = q("kinderOverviewWrap");
+// MINI TABS
+(function () {
+  const miniTabs = document.getElementById("kinderMiniTabs");
+  const tabO = document.getElementById("tabKinderOverzicht");
+  const tabV = document.getElementById("tabKinderVerjaardagen");
+  function getEls() {
+    return {
+      potSel: document.getElementById("pot"),
+      birthday: document.getElementById("birthdaySection"),
+      ov: document.getElementById("kinderOverviewWrap")
+    };
+  }
+  function showO() {
+    const { birthday, ov } = getEls();
     if (ov) ov.style.display = "block";
     if (birthday) birthday.style.display = "none";
-    tabO?.classList.add("active"); tabV?.classList.remove("active");
+    if (tabO) tabO.classList.add("active");
+    if (tabV) tabV.classList.remove("active");
   }
-  function showV(){
-    const birthday = q("birthdaySection");
-    const ov = q("kinderOverviewWrap");
+  function showV() {
+    const { birthday, ov } = getEls();
     if (ov) ov.style.display = "none";
     if (birthday) birthday.style.display = "block";
-    tabV?.classList.add("active"); tabO?.classList.remove("active");
+    if (tabV) tabV.classList.add("active");
+    if (tabO) tabO.classList.remove("active");
   }
-  tabO && (tabO.onclick = showO);
-  tabV && (tabV.onclick = showV);
+  if (tabO) tabO.onclick = showO;
+  if (tabV) tabV.onclick = showV;
 
-  function syncPot(){
-    if (!miniTabs) return;
-    if (pot.value === "kinder") {
+  function syncPot() {
+    const { potSel, birthday, ov } = getEls();
+    if (!potSel || !miniTabs) return;
+    if (potSel.value === "kinder") {
       miniTabs.style.display = "flex";
       showO();
     } else {
       miniTabs.style.display = "none";
-      const birthday = q("birthdaySection");
-      const ov = q("kinderOverviewWrap");
       if (birthday) birthday.style.display = "none";
       if (ov) ov.style.display = "block";
     }
   }
+  document.addEventListener("change", (e) => {
+    if (e.target && e.target.id === "pot") syncPot();
+  });
 
   const prevOpen = window.openAppWithPot;
-  window.openAppWithPot = function(p){
+  window.openAppWithPot = function (p) {
     const r = prevOpen.apply(this, arguments);
     requestAnimationFrame(syncPot);
     return r;
   };
+
   const prevRender = window.render;
-  window.render = function(){
+  window.render = function () {
     const r = prevRender.apply(this, arguments);
     requestAnimationFrame(syncPot);
     return r;
   };
 
-  document.addEventListener("change", (e)=>{ if(e?.target?.id==="pot") syncPot(); });
-  document.addEventListener("DOMContentLoaded", ()=>requestAnimationFrame(syncPot));
+  document.addEventListener("DOMContentLoaded", () => requestAnimationFrame(syncPot));
 })();
 
-// install tip
+// INSTALL TIP
 window.closeInstallTip = function () {
   q("installTip").style.display = "none";
   localStorage.setItem("installTipSeen", "true");
@@ -973,122 +858,85 @@ window.closeInstallTip = function () {
   }
 })();
 
-// ===== AUTH + DB BOOT (NO HANG) =====
-let dbStarted = false;
-let offlineMode = false;
+// ===== AUTH -> DB (POPUP FIX) =====
+let startedDb = false;
 
-async function startDbListener(){
-  if(dbStarted) return;
-  dbStarted = true;
-
-  setLoading("Laden vanuit cloud... ☁️", "Database verbinden…");
-
-  // Extra safety: test read once (sneller duidelijke fout)
-  try{
-    await get(dbRef);
-  }catch(err){
-    console.error("DB get error:", err);
-    offlineMode = true;
-    setOffline(true);
-    showLoginPanel("Firebase database toegang faalt: " + (err?.code || err?.message || "onbekend") + ". Je kan offline werken of login opnieuw proberen.");
-    applyOfflineState();
-    return;
-  }
-
-  onValue(dbRef, (snapshot) => {
-    const data = snapshot.val();
-
-    if (data) {
-      appState = data;
-      normalizeState();
-    } else {
-      appState.links = {...DEFAULT_LINKS};
-      normalizeState();
-      // probeer init te schrijven
-      set(dbRef, appState).catch((e)=>console.error("Init set failed:", e));
-    }
-
-    isDataLoaded = true;
-    saveLocal();
-    setOffline(false);
-    hideLoading();
-    window.render();
-  }, (error) => {
-    console.error("DB onValue error:", error);
-    offlineMode = true;
-    setOffline(true);
-    showLoginPanel("DB listener fout: " + (error?.code || error?.message || "onbekend") + ". Offline werkt wel.");
-    applyOfflineState();
-  });
-}
-
-async function boot(){
-  // startGate direct zichtbaar
-  startGate.style.display = "flex";
-
-  // timeout: nooit langer dan 10s zwarte overlay
-  const hardTimeout = setTimeout(() => {
-    if(!isDataLoaded){
-      console.warn("Timeout -> offline fallback");
-      showLoginPanel("Cloud duurt te lang. Kies login opnieuw of offline.");
-      applyOfflineState();
-    }
-  }, 10000);
-
-  // redirect result proberen afhandelen
-  try{
-    setLoading("Laden vanuit cloud... ☁️", "Login status checken…");
-    await getRedirectResult(auth);
-  }catch(e){
-    // auth errors laten zien, maar niet crashen
-    console.warn("getRedirectResult:", e?.code, e?.message);
-  }
-
+async function bootAuthThenDb() {
   onAuthStateChanged(auth, async (user) => {
-    if (user) {
-      clearTimeout(hardTimeout);
-      hideLoading();
-      loginCard.style.display = "none";
-      setOffline(false);
-      startDbListener();
+    if (!user) {
+      // Show login prompt met popup
+      loadingOverlay.innerHTML = `
+        <div style="text-align:center">
+          <div style="font-size:24px;margin-bottom:20px">☁️</div>
+          <div style="margin-bottom:20px">Login vereist voor cloud-sync</div>
+          <button id="loginBtn" style="background:#4285f4;color:#fff;border:none;padding:12px 24px;border-radius:8px;font-weight:bold;cursor:pointer">
+            🔐 Inloggen met Google
+          </button>
+        </div>
+      `;
+      
+      document.getElementById("loginBtn").onclick = async () => {
+        try {
+          loadingOverlay.innerHTML = "Inloggen... ⏳";
+          await signInWithPopup(auth, provider);
+        } catch (error) {
+          console.error("Login error:", error);
+          loadingOverlay.innerHTML = `
+            <div style="text-align:center;color:#f87171">
+              <div style="margin-bottom:12px">❌ Login mislukt</div>
+              <div style="font-size:12px;margin-bottom:20px">${error.message}</div>
+              <button id="retryBtn" style="background:#4285f4;color:#fff;border:none;padding:12px 24px;border-radius:8px;font-weight:bold;cursor:pointer">
+                🔄 Opnieuw proberen
+              </button>
+            </div>
+          `;
+          document.getElementById("retryBtn").onclick = () => location.reload();
+        }
+      };
       return;
     }
 
-    // Geen user: toon login panel maar laat app offline kunnen draaien
-    showLoginPanel("Je bent niet ingelogd (of cookies/redirect geblokkeerd). Klik 'Login met Google' of kies Offline.");
-    applyOfflineState();
+    // User is ingelogd
+    if (startedDb) return;
+    startedDb = true;
+
+    onValue(
+      dbRef,
+      (snapshot) => {
+        const data = snapshot.val();
+
+        if (data) {
+          appState = data;
+          if (!appState.mins) appState.mins = { fam: 32.0, ani: 16.0, kid: 15.0 };
+          if (!appState.links) appState.links = DEFAULT_LINKS;
+          if (!appState.links.familie) appState.links.familie = DEFAULT_LINKS.familie;
+          if (!appState.links.kinder) appState.links.kinder = DEFAULT_LINKS.kinder;
+          if (!appState.entries) appState.entries = {};
+          if (!appState.memo) appState.memo = "";
+        } else {
+          appState.links = DEFAULT_LINKS;
+          saveCloud();
+        }
+
+        isDataLoaded = true;
+        loadingOverlay.style.display = "none";
+        startGate.style.display = "flex";
+        render();
+      },
+      (error) => {
+        console.error("DB onValue error:", error);
+        loadingOverlay.style.display = "none";
+        alert("Firebase DB error: " + (error?.message || error));
+      }
+    );
   });
 }
 
-// login knoppen
-btnLoginPopup.onclick = async () => {
-  try{
-    setLoading("Inloggen…", "Google popup openen…");
-    await signInWithPopup(auth, provider);
-    // onAuthStateChanged start DB
-  }catch(e){
-    console.error("Popup login error:", e);
-    showLoginPanel("Popup login faalt: " + (e?.code || e?.message || "onbekend") + ". Probeer Redirect of Offline.");
-  }
-};
-
-btnLoginRedirect.onclick = async () => {
-  try{
-    setLoading("Inloggen…", "Redirect starten…");
-    await signInWithRedirect(auth, provider);
-  }catch(e){
-    console.error("Redirect login error:", e);
-    showLoginPanel("Redirect login faalt: " + (e?.code || e?.message || "onbekend") + ". Probeer Popup of Offline.");
-  }
-};
-
-btnUseOffline.onclick = () => {
-  applyOfflineState();
-};
-
-// Start
-boot();
+// Start de app
+bootAuthThenDb();
 </script>
 
+
 </body>
+
 </html>
