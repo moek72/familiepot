@@ -347,7 +347,12 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const dbRef = ref(db, 'potState');
-let appState = { _ver: "final_cloud", mins: {fam: 32.0, ani: 16.0, kid: 15.0}, links: {familie: "", kinder: ""}, entries: {}, memo: "" };
+
+// STAP 1: DEFINIEER DE JUISTE LINKEN
+const FAMILIE_LINK = "https://www.ing.nl/payreq/m/?trxid=BdaM3L8JoNTRunLyMR3hC3MQxAJCIPyN"; //
+const KINDER_LINK = "https://www.ing.nl/payreq/m/?trxid=EYcd4X9BwbAswhHmpMgrNELsSN9kXgeo"; //
+
+let appState = { _ver: "final_cloud", mins: {fam: 32.0, ani: 16.0, kid: 15.0}, links: {familie: FAMILIE_LINK, kinder: KINDER_LINK}, entries: {}, memo: "" };
 let isDataLoaded = false;
 const q = (id) => document.getElementById(id);
 const pot=q("pot"), year=q("year"), month=q("month"), paydate=q("paydate");
@@ -357,38 +362,34 @@ const payDates = {"2026":{"1":"28-01-2026","2":"25-02-2026","3":"25-03-2026","4"
 const YEARS = [2026,2027,2028,2029,2030,2031,2032,2033,2034];
 const monthNames = ["","Januari","Februari","Maart","April","Mei","Juni","Juli","Augustus","September","Oktober","November","December"];
 const families = [{"name":"Moek & Kawita","kids":"Shreya"},{"name":"Jennifer & Berry","kids":"Shira, Chloé"},{"name":"Armando & Sindy","kids":"Amaya"},{"name":"Gaby & Roland","kids":"Devan"},{"name":"Daan & Richella","kids":"—"},{"name":"Geetha & Loek","kids":"—"},{"name":"Roy & Ervinna","kids":"—"},{"name":"Anisa","kids":"Naleya"}];
-const DEFAULT_LINKS = {
-  familie: "https://www.ing.nl/payreq/m/?trxid=BdaM3L8JoNTRunLyMR3hC3MQxAJCIPyN",
-  kinder: "https://www.ing.nl/payreq/m/?trxid=EYcd4X9BwbAswhHmpMgrNELsSN9kXgeo"
-};
+
 onValue(dbRef, (snapshot) => {
   const data = snapshot.val();
   if (data) {
     appState = data;
     if(!appState.mins) appState.mins = {fam: 32.0, ani: 16.0, kid: 15.0};
-    if(!appState.links) appState.links = DEFAULT_LINKS; 
-    if(!appState.links.familie) appState.links.familie = DEFAULT_LINKS.familie;
-    if(!appState.links.kinder) appState.links.kinder = DEFAULT_LINKS.kinder;
+    // ZORG DAT DE LINKEN ALTIJD WORDEN OPGESLAGEN IN DE CLOUD ALS ZE ONTBREKEN
+    if(!appState.links) appState.links = {familie: FAMILIE_LINK, kinder: KINDER_LINK};
     if(!appState.entries) appState.entries = {};
     if(!appState.memo) appState.memo = "";
-  } else {
-    appState.links = DEFAULT_LINKS;
-    saveCloud();
   }
   isDataLoaded = true;
   loadingOverlay.style.display = 'none';
   render();
 });
+
 function saveCloud(){ set(dbRef, appState); }
 function euro(n){ const v = Number(n); if (!Number.isFinite(v)) return "€ 0,00"; return "€ " + v.toFixed(2).replace(".", ","); }
 function key(p, y, m, f){ return p + "|" + y + "|" + m + "|" + f; }
 function minFor(p, f, mins){ return p === "familie" ? (f === "Anisa" ? mins.ani : mins.fam) : mins.kid; }
 function safePayDate(y,m){ const yy = String(y), mm = String(m); if (payDates[yy] && payDates[yy][mm]) return payDates[yy][mm]; return "—"; }
+
 function setTheme(){
   const ap = document.getElementById("activePot");
   if(ap){ ap.textContent = "Pot: " + (pot.value === "familie" ? "Familiepot" : "Kinderpot"); }
   document.body.dataset.pot = pot.value;
 }
+
 window.render = function(){
   if(!isDataLoaded) return;
   setTheme();
@@ -416,7 +417,9 @@ window.render = function(){
   openCountBadge.textContent = openNames.length; openCountBadge.style.display = openNames.length ? "grid" : "none";
   window.__openNames = openNames;
 }
+
 q("saveMemo").onclick = () => { appState.memo = q("memoField").value; saveCloud(); const btn = q("saveMemo"); const oldTxt = btn.textContent; btn.textContent = "✔"; setTimeout(() => btn.textContent = oldTxt, 2000); };
+
 document.addEventListener("click", e => {
   const tile = e.target.closest(".bTile[data-open]");
   if (tile) {
@@ -431,7 +434,9 @@ document.addEventListener("click", e => {
   const close = e.target.closest(".closeX[data-close]");
   if (close) q(close.dataset.close).classList.remove("show");
 });
+
 q("hdrBeheer").onclick = () => q("beheerSheet").classList.add("show");
+
 function openStatus(){
   const s = appState, p = pot.value, y = +year.value, m = +month.value;
   q("statusContext").textContent = `${p==="familie"?"Familiepot":"Kinderpot"} – ${monthNames[m]} ${y}`;
@@ -443,24 +448,38 @@ function openStatus(){
   document.querySelectorAll("#statusList select").forEach(sel => { sel.addEventListener("change", () => { sel.closest(".statusRow").classList.toggle("paid", sel.value === "Betaald"); }); });
   q("statusSheet").classList.add("show");
 }
+
 q("saveStatusTop").onclick = () => { const p = pot.value, y = +year.value, m = +month.value; document.querySelectorAll("#statusList select").forEach(sel => { appState.entries[key(p, y, m, sel.dataset.fam)] = {status: sel.value}; }); saveCloud(); q("statusSheet").classList.remove("show"); };
 q("btnAllPaid").onclick = () => { document.querySelectorAll("#statusList select").forEach(s=>{s.value="Betaald";s.dispatchEvent(new Event("change"));}); };
 q("btnResetAll").onclick = () => { document.querySelectorAll("#statusList select").forEach(s=>{s.value="Niet betaald";s.dispatchEvent(new Event("change"));}); };
+
 function openOpen(){ const openNames = window.__openNames || []; q("openList").innerHTML = !openNames.length ? `<div class="card"><b>Alles betaald 🎉</b></div>` : openNames.map(n => `<div class="card"><b>${n}</b></div>`).join(""); q("openSheet").classList.add("show"); }
+
+// STAP 2: VERBETERDE WHATSAPP FUNCTIES DIE DE JUISTE LINK PAKKEN
 q("btnReminder").onclick = () => {
   const open = window.__openNames || [];
-  const link = appState.links[pot.value] || "";
+  // GEFORCEERD DE JUISTE LINK OP BASIS VAN SELECTIE
+  const link = (pot.value === "familie") ? FAMILIE_LINK : KINDER_LINK; //
   const pName = pot.value === "familie" ? "Familiepot 💙" : "Kinderpot 💜";
   const msg = `Hoi allemaal! 👋\n\nEven een vriendelijke herinnering voor de *${pName}* van *${monthNames[+month.value]} ${year.value}*. ✨\n\n📅 Betaaldatum: ${paydate.textContent}\n\nNog openstaand:\n${open.length ? open.map(n=>"• "+n).join("\n") : "—"}\n\n${link ? "Betaallink:\n" + link + "\n\n" : ""}Alvast super bedankt! 🙏`;
   window.open("https://wa.me/?text=" + encodeURIComponent(msg));
 };
-function openWhats(){ q("whatsContext").textContent = `${pot.value} – ${monthNames[+month.value]} ${year.value}`; q("payLinkPreview").textContent = appState.links[pot.value] || "(geen link)"; q("whatsSheet").classList.add("show"); }
+
+function openWhats(){ 
+    q("whatsContext").textContent = `${pot.value} – ${monthNames[+month.value]} ${year.value}`; 
+    // PREVIEW OOK AANPASSEN
+    q("payLinkPreview").textContent = (pot.value === "familie") ? FAMILIE_LINK : KINDER_LINK; //
+    q("whatsSheet").classList.add("show"); 
+}
+
 q("waReminder").onclick = q("btnReminder").onclick;
+
 q("waThanks").onclick = () => {
   const pName = pot.value === "familie" ? "Familiepot 💙" : "Kinderpot 💜";
   const msg = `Lieve allemaal, super bedankt! 💖\n\nDe *${pName}* van *${monthNames[+month.value]} ${year.value}* is helemaal compleet! 🎉✅`;
   window.open("https://wa.me/?text=" + encodeURIComponent(msg));
 };
+
 q("waShare").onclick = () => {
   const paid = 8-(window.__openNames?.length||0), open = window.__openNames?.length||0;
   const pName = pot.value === "familie" ? "Familiepot 💙" : "Kinderpot 💜";
@@ -526,20 +545,25 @@ q("downloadIcsBtn").onclick = function(){
 function openOver(){ const s = appState, p = pot.value, y = +year.value, m = +month.value; q("overContext").textContent = `${p} – t/m ${monthNames[m]} ${y}`; let paidTo=0, openTo=0, paidCnt=0, openCnt=0; families.forEach(f => { if ((s.entries[key(p,y,m,f.name)]||{}).status==="Betaald") paidCnt++; else openCnt++; for(let mm=1; mm<=m; mm++){ const amt = minFor(p, f.name, s.mins); if((s.entries[key(p,y,mm,f.name)]||{}).status==="Betaald") paidTo+=amt; else openTo+=amt; } }); q("ovIn").textContent = euro(paidTo); q("ovOpen").textContent = euro(openTo); q("ovCount").textContent = `${paidCnt}/8`; q("ovCount2").textContent = `open: ${openCnt}`; q("overSheet").classList.add("show"); }
 q("btnPrint").onclick = () => window.print();
 q("btnOverShare").onclick = () => window.open("https://wa.me/?text=" + encodeURIComponent(`Overzicht ${q("overContext").textContent}\n💰 In pot: ${q("ovIn").textContent}\n⏳ Open: ${q("ovOpen").textContent}`));
+
 function loadSettings(){ const s = appState; q("setFam").value = s.mins.fam; q("setAni").value = s.mins.ani; q("setKid").value = s.mins.kid; q("setLinkFam").value = s.links.familie; q("setLinkKid").value = s.links.kinder; }
 q("saveSettingsBtn").onclick = () => { const s = appState; s.mins.fam = parseFloat(q("setFam").value)||32; s.mins.ani = parseFloat(q("setAni").value)||16; s.mins.kid = parseFloat(q("setKid").value)||15; s.links.familie = q("setLinkFam").value.trim(); s.links.kinder = q("setLinkKid").value.trim(); saveCloud(); alert("Opgeslagen!"); render(); };
+
 const startGate=q("startGate"), appWrap=q("appWrap");
 window.openAppWithPot = function(p){ pot.value = p; startGate.style.display="none"; appWrap.hidden=false; render(); }
 q("chooseFamilie").onclick = () => openAppWithPot("familie");
 q("chooseKinder").onclick = () => openAppWithPot("kinder");
 q("goHome").onclick = () => { appWrap.hidden=true; startGate.style.display="flex"; };
+
 YEARS.forEach(y => { const o=document.createElement("option"); o.value=y; o.textContent=y; year.appendChild(o); });
 for(let i=1;i<=12;i++){ const o=document.createElement("option"); o.value=i; o.textContent=monthNames[i]; month.appendChild(o); }
 const now = new Date(); year.value = YEARS.includes(now.getFullYear())?now.getFullYear():YEARS[0]; month.value = now.getMonth()+1;
 year.onchange=month.onchange=pot.onchange=render;
+
 function __updateBirthdayCountdowns(){ document.querySelectorAll(".bdayTile[data-bday]").forEach(t=>{ const p = (t.dataset.bday||"").split("-"); if(p.length!==2)return; const now = new Date(), today = new Date(now.getFullYear(), now.getMonth(), now.getDate()); let target = new Date(today.getFullYear(), parseInt(p[1])-1, parseInt(p[0])); if(target<today) target = new Date(today.getFullYear()+1, parseInt(p[1])-1, parseInt(p[0])); const diff = Math.round((target-today)/86400000); const el = t.querySelector(".bdayCountdown"); if(el) el.textContent = diff===0 ? "🎉 vandaag!" : (diff===1?"⏳ morgen":`⏳ nog ${diff} dagen`); }); }
 window.openIngAppOnly = function(){ const ua = navigator.userAgent||""; if(/Android/i.test(ua)) window.location.href="intent://#Intent;scheme=ingbankieren;package=com.ing.mobile;end;"; else if(/iPhone|iPad/i.test(ua)) window.location.href="ingbankieren://"; else alert("Open ING app handmatig."); };
 window.sendCongrats = function(btn){ const name = btn.closest(".bdayTile").querySelector(".bdayName").textContent; const isBoy = name.toLowerCase() === "devan"; window.open("https://wa.me/?text=" + encodeURIComponent(`${isBoy?"🧒🎉":"👧🎉"} *Van harte gefeliciteerd ${name}!* 🎂\n\nFijne verjaardag! 💖✨\n\nLiefs,\nGaby 💐`)); };
+
 (function(){
   const miniTabs = document.getElementById('kinderMiniTabs');
   const tabO = document.getElementById('tabKinderOverzicht');
@@ -554,6 +578,7 @@ window.sendCongrats = function(btn){ const name = btn.closest(".bdayTile").query
   const prevRender = window.render; window.render = function(){ const r = prevRender.apply(this, arguments); requestAnimationFrame(syncPot); return r; };
   document.addEventListener('DOMContentLoaded', ()=>requestAnimationFrame(syncPot));
 })();
+
 window.closeInstallTip = function() { q("installTip").style.display = "none"; localStorage.setItem("installTipSeen", "true"); };
 (function(){
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
