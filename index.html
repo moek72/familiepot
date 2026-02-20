@@ -468,17 +468,15 @@ q("waShare").onclick = () => {
   window.open("https://wa.me/?text=" + encodeURIComponent(msg));
 };
 
-// NIEUWE FUNCTIE: Betaaldata verzenden (Warm & Vriendelijk) + GOOGLE LINK
 window.__waSendPayDates = function(){
     const y = year.value;
-    const pName = pot.value === "familie" ? "Familiepot" : "Kinderpot"; // Plain voor Google
-    const pNameFancy = pot.value === "familie" ? "Familiepot 💙" : "Kinderpot 💜"; // Fancy voor WhatsApp
+    const pName = pot.value === "familie" ? "Familiepot" : "Kinderpot"; 
+    const pNameFancy = pot.value === "familie" ? "Familiepot 💙" : "Kinderpot 💜"; 
     const dates = payDates[y];
     if(!dates) return alert("Geen data voor " + y);
     
-    // Maak Google Calendar link (Jaarlijks terugkerend)
-    const firstDateParts = dates[1].split("-"); // 28-01-2026 -> [28, 01, 2026]
-    const gDate = firstDateParts[2] + firstDateParts[1] + firstDateParts[0]; // 20260128
+    const firstDateParts = dates[1].split("-"); 
+    const gDate = firstDateParts[2] + firstDateParts[1] + firstDateParts[0]; 
     const gLink = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=Betaaldag+${pName}&dates=${gDate}T090000Z/${gDate}T100000Z&recur=RRULE:FREQ=MONTHLY;BYDAY=-1WE&details=Vergeet+niet+de+${pName}+over+te+maken!`;
 
     let msg = `Lieve allemaal! 💖\n\nHierbij alvast een handig overzichtje van de betaaldata voor *${y}* van de *${pNameFancy}*. 📅 Zo kunnen we ze alvast in de agenda zetten!\n\n`;
@@ -492,7 +490,6 @@ window.__waSendPayDates = function(){
 };
 q("waPayDates").onclick = window.__waSendPayDates;
 
-// NIEUWE FUNCTIE: ICS Genereren (Agenda bestand)
 q("downloadIcsBtn").onclick = function(){
     const y = year.value;
     const pName = pot.value === "familie" ? "Familiepot" : "Kinderpot";
@@ -502,9 +499,8 @@ q("downloadIcsBtn").onclick = function(){
     let icsContent = "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//Moek//PotDashboard//NL\nCALSCALE:GREGORIAN\nMETHOD:PUBLISH\n";
     
     for(let i=1; i<=12; i++){
-        const dateStr = dates[i]; // bijv 28-01-2026
-        const parts = dateStr.split("-"); // [28, 01, 2026]
-        // ICS format: YYYYMMDD
+        const dateStr = dates[i]; 
+        const parts = dateStr.split("-"); 
         const icsDate = parts[2] + parts[1] + parts[0]; 
         
         icsContent += "BEGIN:VEVENT\n";
@@ -513,7 +509,7 @@ q("downloadIcsBtn").onclick = function(){
         icsContent += "SUMMARY:Betaaldag " + pName + "\n";
         icsContent += "DESCRIPTION:Vergeet niet de " + pName + " over te maken!\n";
         icsContent += "STATUS:CONFIRMED\n";
-        icsContent += "TRANSP:TRANSPARENT\n"; // Laat agenda 'vrij' zien, alleen reminder
+        icsContent += "TRANSP:TRANSPARENT\n"; 
         icsContent += "END:VEVENT\n";
     }
     icsContent += "END:VCALENDAR";
