@@ -348,11 +348,11 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const dbRef = ref(db, 'potState');
 
-// STAP 1: DEFINIEER DE JUISTE LINKEN
-const FAMILIE_LINK = "https://www.ing.nl/payreq/m/?trxid=BdaM3L8JoNTRunLyMR3hC3MQxAJCIPyN"; //
-const KINDER_LINK = "https://www.ing.nl/payreq/m/?trxid=EYcd4X9BwbAswhHmpMgrNELsSN9kXgeo"; //
+// DEZE LINKEN WORDEN NU GEFORCEERD GEBRUIKT
+const L_FAM = "https://www.ing.nl/payreq/m/?trxid=BdaM3L8JoNTRunLyMR3hC3MQxAJCIPyN";
+const L_KID = "https://www.ing.nl/payreq/m/?trxid=EYcd4X9BwbAswhHmpMgrNELsSN9kXgeo";
 
-let appState = { _ver: "final_cloud", mins: {fam: 32.0, ani: 16.0, kid: 15.0}, links: {familie: FAMILIE_LINK, kinder: KINDER_LINK}, entries: {}, memo: "" };
+let appState = { _ver: "final_cloud", mins: {fam: 32.0, ani: 16.0, kid: 15.0}, links: {familie: L_FAM, kinder: L_KID}, entries: {}, memo: "" };
 let isDataLoaded = false;
 const q = (id) => document.getElementById(id);
 const pot=q("pot"), year=q("year"), month=q("month"), paydate=q("paydate");
@@ -367,11 +367,9 @@ onValue(dbRef, (snapshot) => {
   const data = snapshot.val();
   if (data) {
     appState = data;
+    // OVERWRITE DE LINKEN UIT DE DATABASE MET DE NIEUWE LINKEN OM ZEKER TE ZIJN
+    appState.links = { familie: L_FAM, kinder: L_KID };
     if(!appState.mins) appState.mins = {fam: 32.0, ani: 16.0, kid: 15.0};
-    // ZORG DAT DE LINKEN ALTIJD WORDEN OPGESLAGEN IN DE CLOUD ALS ZE ONTBREKEN
-    if(!appState.links) appState.links = {familie: FAMILIE_LINK, kinder: KINDER_LINK};
-    if(!appState.entries) appState.entries = {};
-    if(!appState.memo) appState.memo = "";
   }
   isDataLoaded = true;
   loadingOverlay.style.display = 'none';
@@ -455,20 +453,19 @@ q("btnResetAll").onclick = () => { document.querySelectorAll("#statusList select
 
 function openOpen(){ const openNames = window.__openNames || []; q("openList").innerHTML = !openNames.length ? `<div class="card"><b>Alles betaald 🎉</b></div>` : openNames.map(n => `<div class="card"><b>${n}</b></div>`).join(""); q("openSheet").classList.add("show"); }
 
-// STAP 2: VERBETERDE WHATSAPP FUNCTIES DIE DE JUISTE LINK PAKKEN
+// HIER GEBEURT DE ACTIE: WHATSAPP BERICHTEN MET GEFORCEERDE LINKEN
 q("btnReminder").onclick = () => {
   const open = window.__openNames || [];
-  // GEFORCEERD DE JUISTE LINK OP BASIS VAN SELECTIE
-  const link = (pot.value === "familie") ? FAMILIE_LINK : KINDER_LINK; //
+  // ALTIJD L_FAM OF L_KID GEBRUIKEN
+  const link = (pot.value === "familie") ? L_FAM : L_KID; 
   const pName = pot.value === "familie" ? "Familiepot 💙" : "Kinderpot 💜";
-  const msg = `Hoi allemaal! 👋\n\nEven een vriendelijke herinnering voor de *${pName}* van *${monthNames[+month.value]} ${year.value}*. ✨\n\n📅 Betaaldatum: ${paydate.textContent}\n\nNog openstaand:\n${open.length ? open.map(n=>"• "+n).join("\n") : "—"}\n\n${link ? "Betaallink:\n" + link + "\n\n" : ""}Alvast super bedankt! 🙏`;
+  const msg = `Hoi allemaal! 👋\n\nEven een vriendelijke herinnering voor de *${pName}* van *${monthNames[+month.value]} ${year.value}*. ✨\n\n📅 Betaaldatum: ${paydate.textContent}\n\nNog openstaand:\n${open.length ? open.map(n=>"• "+n).join("\n") : "—"}\n\nBetaallink:\n${link}\n\nAlvast super bedankt! 🙏`;
   window.open("https://wa.me/?text=" + encodeURIComponent(msg));
 };
 
 function openWhats(){ 
     q("whatsContext").textContent = `${pot.value} – ${monthNames[+month.value]} ${year.value}`; 
-    // PREVIEW OOK AANPASSEN
-    q("payLinkPreview").textContent = (pot.value === "familie") ? FAMILIE_LINK : KINDER_LINK; //
+    q("payLinkPreview").textContent = (pot.value === "familie") ? L_FAM : L_KID; 
     q("whatsSheet").classList.add("show"); 
 }
 
