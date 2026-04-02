@@ -4,16 +4,13 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" name="viewport"/>
 <meta name="theme-color" content="#020617">
-
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Familiepot">
-
 <link rel="apple-touch-icon" href="groepsfoto.png?v=2">
 <link rel="icon" type="image/png" sizes="192x192" href="groepsfoto.png?v=2">
 <link rel="icon" type="image/png" sizes="512x512" href="groepsfoto.png?v=2">
 <link rel="shortcut icon" type="image/png" href="groepsfoto.png?v=2">
-
 <title>Familiepot &amp; Kinderpot — Dashboard</title>
 <style>
 /* === CORE THEME VARIABLES === */
@@ -48,16 +45,16 @@
 body { margin: 0; font-family: system-ui, -apple-system, sans-serif; background: var(--theme-bg-grad); color: var(--text-main); min-height: 100vh; transition: background 0.5s ease; }
 h1,h2,h3,h4 { margin: 0; font-weight: 800; letter-spacing: -0.5px; }
 button, select, input, textarea { font: inherit; outline: none; }
-.card, .tile, .bdayTile, .startTile, .panel, .miniTab {
+.card, .tile, .bdayTile, .panel, .miniTab {
   background: var(--card-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid var(--card-border);
   border-radius: 20px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4); position: relative; overflow: hidden; transition: transform 0.2s, border-color 0.3s;
 }
-.card::after, .tile::after, .bdayTile::after, .startTile::after {
+.card::after, .tile::after, .bdayTile::after {
   content: ""; position: absolute; inset: 0; border-radius: 20px; padding: 1px;
   background: linear-gradient(145deg, rgba(255,255,255,0.3), rgba(255,255,255,0));
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none;
 }
-.tile:hover, .card:hover, .bdayTile:hover, .startTile:hover { border-color: var(--card-border-highlight); box-shadow: 0 0 15px var(--theme-glow); }
+.tile:hover, .card:hover, .bdayTile:hover { border-color: var(--card-border-highlight); box-shadow: 0 0 15px var(--theme-glow); }
 .header { position: sticky; top: 0; z-index: 100; background: rgba(5, 7, 10, 0.85); backdrop-filter: blur(10px); border-bottom: 1px solid var(--card-border); }
 .header .row { display: flex; gap: 10px; padding: 12px; max-width: 1200px; margin: 0 auto; align-items: center; flex-wrap: wrap; }
 .hdrBtn, select { background: rgba(255,255,255,0.05); border: 1px solid var(--card-border); color: #fff; padding: 10px 14px; border-radius: 12px; font-weight: 700; cursor: pointer; }
@@ -89,9 +86,11 @@ button, select, input, textarea { font: inherit; outline: none; }
 .sectionTitle { font-size: 20px; color: var(--theme-primary); text-shadow: 0 0 10px var(--theme-glow); }
 .bdayGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
 .bdayTile { padding: 16px; text-align: center; border: 1px solid var(--theme-primary); }
+.bdayTile.uitbetaald { border-color: #059669 !important; background: linear-gradient(180deg, rgba(5,150,105,0.15), rgba(4,120,87,0.1)) !important; }
 .bdayName { font-size: 18px; font-weight: 900; color: #fff; }
-.bdayDate { font-size: 13px; color: var(--text-muted); margin-bottom: 10px; }
-.bdayCountdown { background: rgba(0,0,0,0.4); padding: 4px 10px; border-radius: 8px; font-size: 12px; font-weight: 700; color: var(--theme-primary); display: inline-block; margin-bottom: 10px; border: 1px solid var(--card-border); }
+.bdayDate { font-size: 13px; color: var(--text-muted); margin-bottom: 6px; }
+.bdayCountdown { background: rgba(0,0,0,0.4); padding: 4px 10px; border-radius: 8px; font-size: 12px; font-weight: 700; color: var(--theme-primary); display: inline-block; margin-bottom: 6px; border: 1px solid var(--card-border); }
+.bdayPaidBadge { background: #059669; color: #ecfdf5; font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 6px; display: none; margin-bottom: 6px; }
 .bdayRow button { width: 100%; margin-top: 6px; font-size: 12px; padding: 8px; border-radius: 8px; border: none; font-weight: 800; cursor: pointer; transition: transform 0.1s; }
 .bdayPayBtn { background: #10b981; color: #022c22; }
 .bdayCongratsBtn { background: #db2777; color: #fff; }
@@ -99,84 +98,124 @@ button:active { transform: scale(0.96); }
 .sheet { position: fixed; inset: 0; z-index: 2000; background: rgba(0,0,0,0.7); backdrop-filter: blur(5px); display: none; align-items: flex-end; justify-content: center; }
 .sheet.show { display: flex; }
 .panel { width: 100%; max-width: 600px; max-height: 85vh; border-bottom-left-radius: 0; border-bottom-right-radius: 0; display: flex; flex-direction: column; background: #0f172a; background: linear-gradient(180deg, #1e293b, #0f172a); border: 1px solid var(--card-border); box-shadow: 0 -10px 40px rgba(0,0,0,0.6); }
-[data-pot="kinder"] .panel { background: linear-gradient(180deg, #2e1065, #1e1b4b); }
 .panelHeader { padding: 16px; border-bottom: 1px solid var(--card-border); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: inherit; z-index: 10; border-top-left-radius: 20px; border-top-right-radius: 20px; }
 .closeX { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--card-border); background: rgba(255,255,255,0.1); color: #fff; display: grid; place-items: center; cursor: pointer; }
 .panelContent { padding: 16px; overflow-y: auto; }
 .beheerGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 16px; }
-.bTile { padding: 16px; display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.06); border: 1px solid var(--card-border); cursor: pointer; color: #ffffff !important; }
+.bTile { padding: 16px; display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.06); border: 1px solid var(--card-border); cursor: pointer; color: #ffffff !important; border-radius: 20px; }
 .bTile:hover { background: rgba(255,255,255,0.1); }
 .btIcon { font-size: 24px; background: rgba(255,255,255,0.1); width: 40px; height: 40px; display: grid; place-items: center; border-radius: 10px; }
 .btText .btT { font-weight: 800; font-size: 14px; color: #fff; }
 .btText .btS { font-size: 11px; color: #d1d5db; margin-top:2px; }
-.statusRow { background: rgba(0,0,0,0.2); margin-bottom: 8px; padding: 12px; }
+.statusRow { background: rgba(0,0,0,0.2); margin-bottom: 8px; padding: 12px; border-radius: 20px; border: 1px solid var(--card-border); }
 .statusRow.paid { border-color: #10b981; background: rgba(16, 185, 129, 0.1); }
-.statusRow select { background: #000; color: #fff; border: 1px solid #444; }
-.startGate { position: fixed; inset: 0; z-index: 5000; background: #020617; display: flex; align-items: center; justify-content: center; padding: 20px; overflow-y:auto; }
-.startBox { width: 100%; max-width: 500px; padding-bottom:40px; }
-.startTitle { font-size: 28px; font-weight: 900; margin-bottom: 8px; text-align: center; background: -webkit-linear-gradient(0deg, #38bdf8, #e879f9); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-.startSub { text-align: center; color: var(--text-muted); margin-bottom: 24px; }
-.startGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 20px; }
-.startTile { padding: 24px; text-align: center; cursor: pointer; background: linear-gradient(145deg, rgba(255,255,255,0.05), rgba(255,255,255,0.01)); }
-.startTile:hover { transform: translateY(-5px); }
-.startTile .ico { font-size: 40px; margin-top: 10px; filter: drop-shadow(0 0 10px rgba(255,255,255,0.3)); }
-.startTile .big { margin-top: 10px; font-size: 18px; font-weight: 800; }
-#chooseFamilie { border-color: rgba(56, 189, 248, 0.4); }
-#chooseFamilie:hover { box-shadow: 0 0 30px rgba(56, 189, 248, 0.3); }
-#chooseKinder { border-color: rgba(232, 121, 249, 0.4); }
-#chooseKinder:hover { box-shadow: 0 0 30px rgba(232, 121, 249, 0.3); }
+.statusRow select { background: #000; color: #fff; border: 1px solid #444; border-radius: 8px; padding: 6px; }
+
+/* === STARTGATE (HOMEPAGE) === */
+.startGate { position: fixed; inset: 0; z-index: 5000; background: #020617; display: flex; align-items: flex-start; justify-content: center; padding: 20px; overflow-y: auto; }
+.startBox { width: 100%; max-width: 420px; padding-top: 16px; padding-bottom: 30px; }
+.startTitle { font-size: 26px; font-weight: 900; margin-bottom: 4px; text-align: center; background: -webkit-linear-gradient(0deg, #38bdf8, #e879f9); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.startSub { text-align: center; color: var(--text-muted); margin-bottom: 16px; font-size: 14px; }
+/* Pot tiles op homepage */
+.homePotTile { display: flex; align-items: center; gap: 14px; padding: 16px 18px; cursor: pointer; margin-bottom: 10px; background: rgba(30,41,59,0.8); border: 1px solid var(--card-border); border-radius: 18px; box-shadow: 0 4px 20px rgba(0,0,0,0.4); transition: transform 0.15s, border-color 0.2s, box-shadow 0.2s; -webkit-tap-highlight-color: transparent; }
+.homePotTile:active { transform: scale(0.98); }
+.homePotTile.blue { border-color: rgba(56,189,248,0.4); }
+.homePotTile.blue:hover { border-color: #38bdf8; box-shadow: 0 0 20px rgba(56,189,248,0.3); }
+.homePotTile.purple { border-color: rgba(232,121,249,0.4); }
+.homePotTile.purple:hover { border-color: #e879f9; box-shadow: 0 0 20px rgba(232,121,249,0.3); }
+.hptIco { font-size: 36px; flex-shrink: 0; }
+.hptInfo { flex: 1; min-width: 0; }
+.hptName { font-size: 19px; font-weight: 900; }
+.hptName.blue { color: #38bdf8; }
+.hptName.purple { color: #e879f9; }
+.hptStat { font-size: 13px; color: var(--text-muted); margin-top: 3px; }
+.hptArrow { font-size: 22px; color: rgba(255,255,255,0.2); flex-shrink: 0; }
+
 .btn { background: var(--theme-primary); color: #fff; width: 100%; border: none; padding: 12px; border-radius: 12px; font-weight: 800; margin-top: 10px; cursor: pointer; }
 .btn2 { background: transparent; border: 1px solid var(--card-border); color: #fff; width: 100%; padding: 12px; border-radius: 12px; font-weight: 800; margin-top: 8px; cursor: pointer; }
 .hidden { display: none !important; }
-.smallLinkBtn { background: transparent; border: none; color: #555; width: 100%; margin-top: 20px; font-size: 11px; cursor: pointer; }
 .inputGroup { margin-bottom: 12px; }
 .inputGroup label { display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 4px; }
 .inputGroup input, .inputGroup textarea { width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--card-border); color: #fff; padding: 10px; border-radius: 8px; }
 #loadingOverlay { position:fixed;inset:0;background:#000;z-index:9999;display:grid;place-items:center;color:#fff;font-weight:bold; }
-#installTip { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 9000; display: none; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(8px); }
-#installTip .tipBox { background: #1e293b; border: 1px solid #38bdf8; border-radius: 20px; padding: 24px; max-width: 400px; text-align: center; box-shadow: 0 0 30px rgba(56, 189, 248, 0.3); }
-#installTip h3 { color: #38bdf8; margin-bottom: 12px; font-size: 20px; }
-#installTip p { font-size: 14px; line-height: 1.5; color: #cbd5e1; margin-bottom: 20px; }
-#installTip ol { text-align: left; margin-bottom: 20px; padding-left: 20px; color: #cbd5e1; font-size: 13px; line-height: 1.6; }
-#installTip li { margin-bottom: 6px; }
+
+/* Install tip: balk onderaan, niet als overlay */
+#installTip { position: fixed; bottom: 0; left: 0; right: 0; z-index: 9000; display: none; background: #0f172a; border-top: 1px solid #38bdf8; padding: 16px 20px; box-shadow: 0 -4px 24px rgba(56,189,248,0.2); }
+#installTip .tipInner { max-width: 500px; margin: 0 auto; display: flex; gap: 14px; align-items: flex-start; }
+#installTip .tipIcon { font-size: 28px; flex-shrink: 0; }
+#installTip .tipBody { flex: 1; }
+#installTip h3 { color: #38bdf8; margin-bottom: 6px; font-size: 16px; }
+#installTip ol { margin: 6px 0 10px; padding-left: 18px; color: #cbd5e1; font-size: 13px; line-height: 1.6; }
+#installTip li { margin-bottom: 4px; }
+#installTip button { background: #38bdf8; color: #000; border: none; padding: 8px 18px; border-radius: 10px; font-weight: 800; cursor: pointer; font-size: 13px; }
+
+/* Uitbetaling sheet */
+.uitbPanel { background: linear-gradient(180deg, #2e1065, #1a0a30) !important; }
+
+/* Verjaardag alert op homepage */
+.bdayAlertCard { display:flex; align-items:center; gap:14px; padding:16px 18px; background:rgba(217,70,239,0.12); border:1px solid rgba(232,121,249,0.5); border-radius:16px; cursor:pointer; margin-bottom:10px; transition:transform 0.15s, box-shadow 0.2s; -webkit-tap-highlight-color:transparent; }
+.bdayAlertCard:active { transform:scale(0.97); }
+.bdayAlertCard:hover { box-shadow:0 0 20px rgba(232,121,249,0.25); }
+.bdayAlertCard .aIco { font-size:38px; flex-shrink:0; }
+.bdayAlertCard .aInfo { flex:1; min-width:0; }
+.bdayAlertCard .aTitle { font-size:15px; font-weight:900; color:#e879f9; }
+.bdayAlertCard .aSub { font-size:13px; color:var(--text-muted); margin-top:3px; }
+.bdayAlertCard .aArrow { font-size:22px; color:rgba(232,121,249,0.5); flex-shrink:0; }
 </style>
 </head>
 <body data-pot="familie" id="app">
 <div id="loadingOverlay">Laden vanuit cloud... ☁️</div>
+
+<!-- Install tip (balk onderaan) -->
 <div id="installTip">
-  <div class="tipBox">
-    <h3>📲 Installeer als App</h3>
-    <p>Voor de beste ervaring voeg je dit dashboard toe aan je beginscherm.</p>
-    <div id="iosTip" style="display:none;"><ol><li>Klik op de <b>Deel-knop</b> <span style="font-size:18px">⏏️</span> onderin.</li><li>Scroll omlaag en kies <b>"Zet op beginscherm"</b>.</li></ol></div>
-    <div id="androidTip" style="display:none;"><ol><li>Klik op de <b>3 puntjes</b> <span style="font-size:18px">⋮</span> rechtsboven.</li><li>Kies <b>"App installeren"</b> of <b>"Toevoegen aan startscherm"</b>.</li></ol></div>
-    <button class="btn" onclick="closeInstallTip()">Begrepen, sluiten</button>
+  <div class="tipInner">
+    <div class="tipIcon">📲</div>
+    <div class="tipBody">
+      <h3>Installeer als App op je telefoon</h3>
+      <div id="iosTip" style="display:none;"><ol><li>Tik op de <b>Deel-knop</b> ⏏️ onderin Safari.</li><li>Kies <b>"Zet op beginscherm"</b>.</li></ol></div>
+      <div id="androidTip" style="display:none;"><ol><li>Tik op de <b>3 puntjes</b> ⋮ rechtsboven.</li><li>Kies <b>"App installeren"</b> of <b>"Toevoegen aan startscherm"</b>.</li></ol></div>
+      <button onclick="closeInstallTip()">Begrepen ✓</button>
+    </div>
   </div>
 </div>
+
+<!-- HOMEPAGE -->
 <div class="startGate" id="startGate" aria-modal="true" role="dialog" style="display:none;">
   <div class="startBox">
-    <div class="startTitle">Welkom Gaby</div>
-    <p class="startSub">Kies de pot om te beheren</p>
-    <div class="card" style="border:1px solid #eab308; background:rgba(234,179,8,0.05);">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-           <b style="color:#facc15">📝 Prikbord</b>
-           <button id="saveMemo" style="background:#eab308;color:#000;border:none;padding:4px 10px;border-radius:6px;font-weight:bold;cursor:pointer;font-size:12px;">Opslaan</button>
-        </div>
-        <textarea id="memoField" rows="2" placeholder="Typ hier een berichtje..." style="width:100%;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.1);color:#fff;padding:8px;border-radius:8px;resize:vertical;font-family:inherit;"></textarea>
-    </div>
-    <div class="startGrid">
-      <div class="startTile" id="chooseFamilie" role="button" tabindex="0">
-        <div class="lbl">Open dashboard</div>
-        <div class="big" style="color:#38bdf8">Familiepot</div>
-        <div class="ico">💙</div>
+    <div class="startTitle">Welkom Gaby 💐</div>
+    <p class="startSub">Kies welke pot je wilt beheren</p>
+
+    <div id="chooseFamilie" class="homePotTile blue" role="button" tabindex="0">
+      <div class="hptIco">💙</div>
+      <div class="hptInfo">
+        <div class="hptName blue">Familiepot</div>
+        <div class="hptStat" id="homeStatFam">Laden...</div>
       </div>
-      <div class="startTile" id="chooseKinder" role="button" tabindex="0">
-        <div class="lbl">Open dashboard</div>
-        <div class="big" style="color:#e879f9">Kinderpot</div>
-        <div class="ico">💜</div>
-      </div>
+      <div class="hptArrow">›</div>
     </div>
+
+    <div id="chooseKinder" class="homePotTile purple" role="button" tabindex="0">
+      <div class="hptIco">💜</div>
+      <div class="hptInfo">
+        <div class="hptName purple">Kinderpot</div>
+        <div class="hptStat" id="homeStatKid">Laden...</div>
+      </div>
+      <div class="hptArrow">›</div>
+    </div>
+
+    <!-- Prikbord: altijd zichtbaar -->
+    <div style="margin-top:10px; background:rgba(234,179,8,0.06); border:1px solid rgba(234,179,8,0.3); border-radius:16px; padding:14px;">
+      <div style="font-size:12px;font-weight:800;color:#fde68a;margin-bottom:8px;letter-spacing:0.5px;">📝 PRIKBORD</div>
+      <textarea id="memoField" rows="4" placeholder="Berichtje voor Gaby..." style="width:100%;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.1);color:#fff;padding:10px;border-radius:10px;resize:none;font-family:inherit;font-size:13px;line-height:1.6;"></textarea>
+      <button id="saveMemo" style="background:#eab308;color:#000;border:none;padding:9px;border-radius:10px;font-weight:800;cursor:pointer;font-size:13px;width:100%;margin-top:8px;">💾 Opslaan</button>
+    </div>
+
+    <!-- Verjaardag actie alert -->
+    <div id="bdayAlert" style="margin-top:14px;"></div>
   </div>
 </div>
+
+<!-- HOOFDAPP -->
 <div class="header">
   <div class="row">
     <button class="hdrBtn" id="goHome">🏠 Home</button>
@@ -195,42 +234,53 @@ button:active { transform: scale(0.96); }
 <div class="wrap" id="appWrap" hidden>
 <div id="kinderOverviewWrap">
   <div class="tiles">
-    <div class="tile"><div class="lbl">💰 In pot (t/m maand)</div><div class="big" id="t_in">€ 0,00</div></div>
+    <div class="tile"><div class="lbl" id="t_in_lbl">💰 In pot (t/m maand)</div><div class="big" id="t_in">€ 0,00</div></div>
     <div class="tile"><div class="lbl">⏳ Totaal open (t/m maand)</div><div class="big" id="t_open">€ 0,00</div></div>
     <div class="tile"><div class="lbl">✅ Betaald (maand)</div><div class="big" id="t_paid">0/8</div></div>
     <div class="tile"><div class="lbl">📌 Te betalen (maand)</div><div class="big" id="t_due">€ 0,00</div></div>
+    <div class="tile" id="tileUitb" style="display:none;"><div class="lbl">💸 Uitbetaald (dit jaar)</div><div class="big" id="t_uitb">€ 0,00</div></div>
   </div>
   <div class="cards" id="cards"></div>
 </div>
+
+<!-- Verjaardagen sectie (kinderpot) -->
 <div class="section" id="birthdaySection" style="display:none;">
   <div class="sectionHead"><div class="sectionTitle">🎂 Kinderverjaardagen</div></div>
   <div class="bdayGrid">
-    <div class="bdayTile" data-bday="04-04">
+    <div class="bdayTile" data-bday="04-04" data-child="Naleya">
       <div class="bdayName">Naleya</div><div class="bdayDate">04-04-2020</div>
-      <div class="bdayRow"><div class="bdayCountdown">—</div><button class="bdayPayBtn" type="button" onclick="openIngAppOnly();">💸 Uitbetalen</button><button class="bdayCongratsBtn" type="button" onclick="sendCongrats(this);">🎉 Feliciteren</button></div>
+      <div class="bdayPaidBadge">✅ Uitbetaald</div>
+      <div class="bdayRow"><div class="bdayCountdown">—</div><button class="bdayPayBtn" type="button" onclick="openUitbetaling(this);">💸 Uitbetalen</button><button class="bdayCongratsBtn" type="button" onclick="sendCongrats(this);">🎉 Feliciteren</button></div>
     </div>
-    <div class="bdayTile" data-bday="21-04">
+    <div class="bdayTile" data-bday="21-04" data-child="Shira">
       <div class="bdayName">Shira</div><div class="bdayDate">21-04-2015</div>
-      <div class="bdayRow"><div class="bdayCountdown">—</div><button class="bdayPayBtn" type="button" onclick="openIngAppOnly();">💸 Uitbetalen</button><button class="bdayCongratsBtn" type="button" onclick="sendCongrats(this);">🎉 Feliciteren</button></div>
+      <div class="bdayPaidBadge">✅ Uitbetaald</div>
+      <div class="bdayRow"><div class="bdayCountdown">—</div><button class="bdayPayBtn" type="button" onclick="openUitbetaling(this);">💸 Uitbetalen</button><button class="bdayCongratsBtn" type="button" onclick="sendCongrats(this);">🎉 Feliciteren</button></div>
     </div>
-    <div class="bdayTile" data-bday="26-06">
+    <div class="bdayTile" data-bday="26-06" data-child="Chloé">
       <div class="bdayName">Chloé</div><div class="bdayDate">26-06-2017</div>
-      <div class="bdayRow"><div class="bdayCountdown">—</div><button class="bdayPayBtn" type="button" onclick="openIngAppOnly();">💸 Uitbetalen</button><button class="bdayCongratsBtn" type="button" onclick="sendCongrats(this);">🎉 Feliciteren</button></div>
+      <div class="bdayPaidBadge">✅ Uitbetaald</div>
+      <div class="bdayRow"><div class="bdayCountdown">—</div><button class="bdayPayBtn" type="button" onclick="openUitbetaling(this);">💸 Uitbetalen</button><button class="bdayCongratsBtn" type="button" onclick="sendCongrats(this);">🎉 Feliciteren</button></div>
     </div>
-    <div class="bdayTile" data-bday="28-06">
+    <div class="bdayTile" data-bday="28-06" data-child="Devan">
       <div class="bdayName">Devan</div><div class="bdayDate">28-06-2014</div>
-      <div class="bdayRow"><div class="bdayCountdown">—</div><button class="bdayPayBtn" type="button" onclick="openIngAppOnly();">💸 Uitbetalen</button><button class="bdayCongratsBtn" type="button" onclick="sendCongrats(this);">🎉 Feliciteren</button></div>
+      <div class="bdayPaidBadge">✅ Uitbetaald</div>
+      <div class="bdayRow"><div class="bdayCountdown">—</div><button class="bdayPayBtn" type="button" onclick="openUitbetaling(this);">💸 Uitbetalen</button><button class="bdayCongratsBtn" type="button" onclick="sendCongrats(this);">🎉 Feliciteren</button></div>
     </div>
-    <div class="bdayTile" data-bday="31-10">
+    <div class="bdayTile" data-bday="31-10" data-child="Shreya">
       <div class="bdayName">Shreya</div><div class="bdayDate">31-10-2015</div>
-      <div class="bdayRow"><div class="bdayCountdown">—</div><button class="bdayPayBtn" type="button" onclick="openIngAppOnly();">💸 Uitbetalen</button><button class="bdayCongratsBtn" type="button" onclick="sendCongrats(this);">🎉 Feliciteren</button></div>
+      <div class="bdayPaidBadge">✅ Uitbetaald</div>
+      <div class="bdayRow"><div class="bdayCountdown">—</div><button class="bdayPayBtn" type="button" onclick="openUitbetaling(this);">💸 Uitbetalen</button><button class="bdayCongratsBtn" type="button" onclick="sendCongrats(this);">🎉 Feliciteren</button></div>
     </div>
-    <div class="bdayTile" data-bday="29-12">
+    <div class="bdayTile" data-bday="29-12" data-child="Amaya">
       <div class="bdayName">Amaya</div><div class="bdayDate">29-12-2022</div>
-      <div class="bdayRow"><div class="bdayCountdown">—</div><button class="bdayPayBtn" type="button" onclick="openIngAppOnly();">💸 Uitbetalen</button><button class="bdayCongratsBtn" type="button" onclick="sendCongrats(this);">🎉 Feliciteren</button></div>
+      <div class="bdayPaidBadge">✅ Uitbetaald</div>
+      <div class="bdayRow"><div class="bdayCountdown">—</div><button class="bdayPayBtn" type="button" onclick="openUitbetaling(this);">💸 Uitbetalen</button><button class="bdayCongratsBtn" type="button" onclick="sendCongrats(this);">🎉 Feliciteren</button></div>
     </div>
   </div>
 </div>
+
+<!-- Beheer sheet -->
 <div class="sheet" id="beheerSheet">
   <div class="panel">
     <div class="panelHeader"><button class="closeX" data-close="beheerSheet">✕</button><div class="hdrTitle"><h3>Beheer</h3></div></div>
@@ -243,22 +293,26 @@ button:active { transform: scale(0.96); }
     </div>
   </div>
 </div>
+
+<!-- Status sheet -->
 <div class="sheet" id="statusSheet">
   <div class="panel">
     <div class="panelHeader">
       <button class="closeX" data-close="statusSheet">✕</button>
       <div><h3 style="margin:0">Status bijwerken</h3><div class="kids" id="statusContext" style="font-size:12px;color:var(--text-muted)"></div></div>
-      <button class="btnSaveTop" id="saveStatusTop">Opslaan</button>
+      <button class="btnSaveTop" id="saveStatusTop" style="background:var(--theme-primary);color:#fff;border:none;padding:8px 14px;border-radius:10px;font-weight:800;cursor:pointer;">Opslaan</button>
     </div>
     <div class="panelContent">
-	    <div style="display:flex; gap:10px; margin-bottom:12px;">
-	      <button id="btnAllPaid" class="btnQuick" style="flex:1;background:#064e3b;color:#6ee7b7;border:1px solid #059669;border-radius:8px;padding:8px;cursor:pointer;font-weight:bold">✓ Iedereen betaald</button>
-	      <button id="btnResetAll" class="btnQuick" style="flex:1;background:#450a0a;color:#fca5a5;border:1px solid #b91c1c;border-radius:8px;padding:8px;cursor:pointer;font-weight:bold">✕ Reset alles</button>
-	    </div>
-        <div id="statusList"></div>
+      <div style="display:flex; gap:10px; margin-bottom:12px;">
+        <button id="btnAllPaid" style="flex:1;background:#064e3b;color:#6ee7b7;border:1px solid #059669;border-radius:8px;padding:8px;cursor:pointer;font-weight:bold">✓ Iedereen betaald</button>
+        <button id="btnResetAll" style="flex:1;background:#450a0a;color:#fca5a5;border:1px solid #b91c1c;border-radius:8px;padding:8px;cursor:pointer;font-weight:bold">✕ Reset alles</button>
+      </div>
+      <div id="statusList"></div>
     </div>
   </div>
 </div>
+
+<!-- Openstaand sheet -->
 <div class="sheet" id="openSheet">
   <div class="panel">
     <div class="panelHeader"><button class="closeX" data-close="openSheet">✕</button><h3 style="margin:0">Niet betaald</h3></div>
@@ -269,6 +323,8 @@ button:active { transform: scale(0.96); }
     </div>
   </div>
 </div>
+
+<!-- WhatsApp sheet -->
 <div class="sheet" id="whatsSheet">
   <div class="panel">
     <div class="panelHeader"><button class="closeX" data-close="whatsSheet">✕</button><h3 style="margin:0">WhatsApp</h3></div>
@@ -292,11 +348,13 @@ button:active { transform: scale(0.96); }
       </div>
       <div class="card" style="margin-top:10px;display:block">
         <b>Betaallink</b>
-        <div class="kids" id="payLinkPreview" style="margin-top:8px;word-break:break-word;font-size:11px;color:var(--text-muted)"></div>
+        <div class="kids" id="payLinkPreview" style="margin-top:8px;word-break:break-all;font-size:11px;color:var(--text-muted)"></div>
       </div>
     </div>
   </div>
 </div>
+
+<!-- Overzicht sheet -->
 <div class="sheet" id="overSheet">
   <div class="panel">
     <div class="panelHeader"><button class="closeX" data-close="overSheet">✕</button><h3 style="margin:0">Overzicht</h3></div>
@@ -317,21 +375,63 @@ button:active { transform: scale(0.96); }
     </div>
   </div>
 </div>
+
+<!-- Instellingen sheet -->
 <div class="sheet" id="settingsSheet">
   <div class="panel">
-    <div class="panelHeader"><button class="closeX" data-close="settingsSheet">✕</button><div class="hdrTitle"><h3>Instellingen</h3></div><button class="btnSaveTop" id="saveSettingsBtn">Opslaan</button></div>
+    <div class="panelHeader"><button class="closeX" data-close="settingsSheet">✕</button><div class="hdrTitle"><h3>Instellingen</h3></div><button id="saveSettingsBtn" style="background:var(--theme-primary);color:#fff;border:none;padding:8px 14px;border-radius:10px;font-weight:800;cursor:pointer;">Opslaan</button></div>
     <div class="panelContent">
       <div class="card" style="display:block">
-        <div class="inputGroup"><label>Familiepot bedrag (normaal)</label><input type="number" step="0.01" id="setFam"></div>
-        <div class="inputGroup"><label>Familiepot bedrag Anisa</label><input type="number" step="0.01" id="setAni"></div>
-        <div class="inputGroup"><label>Kinderpot bedrag</label><input type="number" step="0.01" id="setKid"></div>
+        <div class="inputGroup"><label>Familiepot bedrag per koppel (€/maand)</label><input type="number" step="0.01" id="setFam"></div>
+        <div class="inputGroup"><label>Familiepot bedrag Anisa (€/maand)</label><input type="number" step="0.01" id="setAni"></div>
+        <div class="inputGroup"><label>Kinderpot maandbedrag per gezin (€)</label><input type="number" step="0.01" id="setKid"></div>
+        <div class="inputGroup"><label>Kinderpot uitbetaling per kind per jaar (€)</label><input type="number" step="0.01" id="setKidPayout" placeholder="240.00"></div>
         <div class="inputGroup"><label>Betaallink Familiepot</label><textarea id="setLinkFam" rows="2"></textarea></div>
         <div class="inputGroup"><label>Betaallink Kinderpot</label><textarea id="setLinkKid" rows="2"></textarea></div>
       </div>
     </div>
   </div>
 </div>
+
+<!-- UITBETALING SHEET (kinderpot) -->
+<div class="sheet" id="uitbetalingSheet">
+  <div class="panel uitbPanel" style="background: linear-gradient(180deg, #2e1065, #1a0a30);">
+    <div class="panelHeader" style="background:linear-gradient(180deg,#3b0764,#2e1065); border-top-left-radius:20px; border-top-right-radius:20px;">
+      <button class="closeX" data-close="uitbetalingSheet">✕</button>
+      <h3 style="margin:0; color:#e879f9;">💸 Uitbetalen Kinderpot</h3>
+      <div style="width:32px;"></div>
+    </div>
+    <div class="panelContent" style="text-align:center; padding: 20px 20px 28px;">
+      <div style="font-size:56px; margin: 10px 0 8px;">🎂</div>
+      <div id="uitbChildName" style="font-size:28px; font-weight:900; color:#e879f9; margin-bottom:4px;"></div>
+      <div id="uitbChildDate" style="font-size:13px; color:var(--text-muted); margin-bottom:22px;"></div>
+
+      <!-- Al uitbetaald banner -->
+      <div id="uitbAlreadyPaid" style="display:none; background:rgba(5,150,105,0.15); border:1px solid #059669; border-radius:14px; padding:16px; margin-bottom:18px;">
+        <div style="font-size:28px; margin-bottom:6px;">✅</div>
+        <div style="font-weight:800; color:#6ee7b7; font-size:16px;">Al uitbetaald dit jaar</div>
+        <div id="uitbAlreadyInfo" style="font-size:13px; color:var(--text-muted); margin-top:6px;"></div>
+      </div>
+
+      <!-- Bedrag invoer -->
+      <div style="background:rgba(0,0,0,0.35); border:1px solid rgba(232,121,249,0.35); border-radius:14px; padding:16px 16px 12px; margin-bottom:16px; text-align:left;">
+        <div style="font-size:11px; text-transform:uppercase; letter-spacing:1px; color:var(--text-muted); margin-bottom:8px;">Bedrag uitbetalen (€)</div>
+        <input type="number" step="0.01" id="uitbAmount" value="240" style="font-size:34px; font-weight:900; text-align:center; width:100%; background:transparent; border:none; color:#e879f9; padding:4px 0;">
+        <div style="font-size:11px; color:var(--text-muted); text-align:center; margin-top:6px;">Standaard: 8 gezinnen × €15 × 12 mnd ÷ 6 kids = <b style="color:#e879f9;">€240</b></div>
+      </div>
+
+      <button id="uitbPayIng" class="btn" style="background:linear-gradient(135deg,#f97316,#dc2626); font-size:16px; padding:14px; margin-bottom:10px; margin-top:0;">
+        💳 Betalen via ING
+      </button>
+      <button id="uitbProcess" class="btn" style="background:linear-gradient(135deg,#059669,#064e3b); font-size:15px; padding:14px; margin-top:0;">
+        ✅ Uitbetaling verwerkt &amp; afgeschreven
+      </button>
+    </div>
+  </div>
 </div>
+
+</div><!-- /appWrap -->
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
@@ -348,62 +448,111 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const dbRef = ref(db, 'potState');
 
-// DEZE LINKEN WORDEN NU GEFORCEERD GEBRUIKT
+// Betaallinks (altijd geforceerd)
 const L_FAM = "https://www.ing.nl/payreq/m/?trxid=BdaM3L8JoNTRunLyMR3hC3MQxAJCIPyN";
 const L_KID = "https://www.ing.nl/payreq/m/?trxid=EYcd4X9BwbAswhHmpMgrNELsSN9kXgeo";
 
-let appState = { _ver: "final_cloud", mins: {fam: 32.0, ani: 16.0, kid: 15.0}, links: {familie: L_FAM, kinder: L_KID}, entries: {}, memo: "" };
-let isDataLoaded = false;
-const q = (id) => document.getElementById(id);
-const pot=q("pot"), year=q("year"), month=q("month"), paydate=q("paydate");
-const cards=q("cards"), t_in=q("t_in"), t_open=q("t_open"), t_paid=q("t_paid"), t_due=q("t_due"), openCountBadge=q("openCountBadge");
-const loadingOverlay = q("loadingOverlay");
-const payDates = {"2026":{"1":"28-01-2026","2":"25-02-2026","3":"25-03-2026","4":"29-04-2026","5":"27-05-2026","6":"24-06-2026","7":"29-07-2026","8":"26-08-2026","9":"30-09-2026","10":"28-10-2026","11":"25-11-2026","12":"30-12-2026"},"2027":{"1":"27-01-2027","2":"24-02-2027","3":"31-03-2027","4":"28-04-2027","5":"26-05-2027","6":"30-06-2027","7":"28-07-2027","8":"25-08-2027","9":"29-09-2027","10":"27-10-2027","11":"24-11-2027","12":"29-12-2027"},"2028":{"1":"26-01-2028","2":"23-02-2028","3":"29-03-2028","4":"26-04-2028","5":"31-05-2028","6":"28-06-2028","7":"26-07-2028","8":"30-08-2028","9":"27-09-2028","10":"25-10-2028","11":"29-11-2028","12":"27-12-2028"},"2029":{"1":"31-01-2029","2":"28-02-2029","3":"28-03-2029","4":"25-04-2029","5":"30-05-2029","6":"27-06-2029","7":"25-07-2029","8":"29-08-2029","9":"26-09-2029","10":"31-10-2029","11":"28-11-2029","12":"26-12-2029"},"2030":{"1":"30-01-2030","2":"27-02-2030","3":"27-03-2030","4":"24-04-2030","5":"29-05-2030","6":"26-06-2030","7":"31-07-2030","8":"28-08-2030","9":"25-09-2030","10":"30-10-2030","11":"27-11-2030","12":"25-12-2030"},"2031":{"1":"29-01-2031","2":"26-02-2031","3":"26-03-2031","4":"30-04-2031","5":"28-05-2031","6":"25-06-2031","7":"30-07-2031","8":"27-08-2031","9":"24-09-2031","10":"29-10-2031","11":"26-11-2031","12":"31-12-2031"},"2032":{"1":"28-01-2032","2":"25-02-2032","3":"31-03-2032","4":"28-04-2032","5":"26-05-2032","6":"30-06-2032","7":"28-07-2032","8":"25-08-2032","9":"29-09-2032","10":"27-10-2032","11":"24-11-2032","12":"29-12-2032"},"2033":{"1":"26-01-2033","2":"23-02-2033","3":"30-03-2033","4":"27-04-2033","5":"25-05-2033","6":"29-06-2033","7":"27-07-2033","8":"31-08-2033","9":"28-09-2033","10":"26-10-2033","11":"30-11-2033","12":"28-12-2033"},"2034":{"1":"25-01-2034","2":"22-02-2034","3":"29-03-2034","4":"26-04-2034","5":"31-05-2034","6":"28-06-2034","7":"26-07-2034","8":"30-08-2034","9":"27-09-2034","10":"25-10-2034","11":"29-11-2034","12":"27-12-2034"}};
-const YEARS = [2026,2027,2028,2029,2030,2031,2032,2033,2034];
-const monthNames = ["","Januari","Februari","Maart","April","Mei","Juni","Juli","Augustus","September","Oktober","November","December"];
-const families = [{"name":"Moek & Kawita","kids":"Shreya"},{"name":"Jennifer & Berry","kids":"Shira, Chloé"},{"name":"Armando & Sindy","kids":"Amaya"},{"name":"Gaby & Roland","kids":"Devan"},{"name":"Daan & Richella","kids":"—"},{"name":"Geetha & Loek","kids":"—"},{"name":"Roy & Ervinna","kids":"—"},{"name":"Anisa","kids":"Naleya"}];
+// Standaard uitbetaling per kind per jaar:
+// 8 gezinnen × €15/maand × 12 maanden ÷ 6 kinderen = €240
+const DEFAULT_KID_PAYOUT = 240;
 
+let appState = {
+  _ver: "final_cloud",
+  mins: { fam: 32.0, ani: 16.0, kid: 15.0, kidPayout: DEFAULT_KID_PAYOUT },
+  links: { familie: L_FAM, kinder: L_KID },
+  entries: {},
+  memo: "",
+  payouts: {}
+};
+let isDataLoaded = false;
+let uitbCurrentChild = null;
+
+const q = (id) => document.getElementById(id);
+const pot = q("pot"), year = q("year"), month = q("month"), paydate = q("paydate");
+const cards = q("cards"), t_in = q("t_in"), t_open = q("t_open"), t_paid = q("t_paid"), t_due = q("t_due");
+const openCountBadge = q("openCountBadge");
+const loadingOverlay = q("loadingOverlay");
+
+const payDates = {"2026":{"1":"28-01-2026","2":"25-02-2026","3":"25-03-2026","4":"29-04-2026","5":"27-05-2026","6":"24-06-2026","7":"29-07-2026","8":"26-08-2026","9":"30-09-2026","10":"28-10-2026","11":"25-11-2026","12":"30-12-2026"},"2027":{"1":"27-01-2027","2":"24-02-2027","3":"31-03-2027","4":"28-04-2027","5":"26-05-2027","6":"30-06-2027","7":"28-07-2027","8":"25-08-2027","9":"29-09-2027","10":"27-10-2027","11":"24-11-2027","12":"29-12-2027"},"2028":{"1":"26-01-2028","2":"23-02-2028","3":"29-03-2028","4":"26-04-2028","5":"31-05-2028","6":"28-06-2028","7":"26-07-2028","8":"30-08-2028","9":"27-09-2028","10":"25-10-2028","11":"29-11-2028","12":"27-12-2028"},"2029":{"1":"31-01-2029","2":"28-02-2029","3":"28-03-2029","4":"25-04-2029","5":"30-05-2029","6":"27-06-2029","7":"25-07-2029","8":"29-08-2029","9":"26-09-2029","10":"31-10-2029","11":"28-11-2029","12":"26-12-2029"},"2030":{"1":"30-01-2030","2":"27-02-2030","3":"27-03-2030","4":"24-04-2030","5":"29-05-2030","6":"26-06-2030","7":"31-07-2030","8":"28-08-2030","9":"25-09-2030","10":"30-10-2030","11":"27-11-2030","12":"25-12-2030"}};
+const YEARS = [2026,2027,2028,2029,2030];
+const monthNames = ["","Januari","Februari","Maart","April","Mei","Juni","Juli","Augustus","September","Oktober","November","December"];
+const families = [
+  {"name":"Moek & Kawita","kids":"Shreya"},
+  {"name":"Jennifer & Berry","kids":"Shira, Chloé"},
+  {"name":"Armando & Sindy","kids":"Amaya"},
+  {"name":"Gaby & Roland","kids":"Devan"},
+  {"name":"Daan & Richella","kids":"—"},
+  {"name":"Geetha & Loek","kids":"—"},
+  {"name":"Roy & Ervinna","kids":"—"},
+  {"name":"Anisa","kids":"Naleya"}
+];
+
+const DEFAULT_MEMO = `Hee Gaby! 👋
+
+Als een kind jarig is, doe je dit:
+
+1. Tik op 💜 Kinderpot
+2. Tik bovenaan op het tabblad 🎂 Verjaardagen
+3. Zoek het jarige kind → tik op 💸 Uitbetalen
+4. Controleer het bedrag (standaard €240)
+5. Tik op 💳 Betalen via ING om de betaling te doen
+6. Tik daarna op ✅ Verwerkt & afgeschreven
+
+Het bedrag wordt dan automatisch van de pot afgetrokken. Klaar! 🎉`;
+
+// Firebase laden
 onValue(dbRef, (snapshot) => {
   const data = snapshot.val();
   if (data) {
     appState = data;
-    // OVERWRITE DE LINKEN UIT DE DATABASE MET DE NIEUWE LINKEN OM ZEKER TE ZIJN
     appState.links = { familie: L_FAM, kinder: L_KID };
-    if(!appState.mins) appState.mins = {fam: 32.0, ani: 16.0, kid: 15.0};
+    if (!appState.mins) appState.mins = { fam: 32.0, ani: 16.0, kid: 15.0, kidPayout: DEFAULT_KID_PAYOUT };
+    if (!appState.mins.kidPayout) appState.mins.kidPayout = DEFAULT_KID_PAYOUT;
+    if (!appState.payouts) appState.payouts = {};
   }
+  // Zet standaardbericht als prikbord leeg is
+  if (!appState.memo) {
+    appState.memo = DEFAULT_MEMO;
+    saveCloud();
+  }
+  const memoField = q("memoField");
+  if (memoField) memoField.value = appState.memo;
   isDataLoaded = true;
   loadingOverlay.style.display = 'none';
   render();
+  updateBdayAlert();
 });
 
-function saveCloud(){ set(dbRef, appState); }
-function euro(n){ const v = Number(n); if (!Number.isFinite(v)) return "€ 0,00"; return "€ " + v.toFixed(2).replace(".", ","); }
-function key(p, y, m, f){ return p + "|" + y + "|" + m + "|" + f; }
-function minFor(p, f, mins){ return p === "familie" ? (f === "Anisa" ? mins.ani : mins.fam) : mins.kid; }
-function safePayDate(y,m){ const yy = String(y), mm = String(m); if (payDates[yy] && payDates[yy][mm]) return payDates[yy][mm]; return "—"; }
-
-function setTheme(){
-  const ap = document.getElementById("activePot");
-  if(ap){ ap.textContent = "Pot: " + (pot.value === "familie" ? "Familiepot" : "Kinderpot"); }
+function saveCloud() { set(dbRef, appState); }
+function euro(n) { const v = Number(n); if (!Number.isFinite(v)) return "€ 0,00"; return "€ " + v.toFixed(2).replace(".", ","); }
+function key(p, y, m, f) { return p + "|" + y + "|" + m + "|" + f; }
+function minFor(p, f, mins) { return p === "familie" ? (f === "Anisa" ? mins.ani : mins.fam) : mins.kid; }
+function safePayDate(y, m) { const yy = String(y), mm = String(m); if (payDates[yy] && payDates[yy][mm]) return payDates[yy][mm]; return "—"; }
+function setTheme() {
+  const ap = q("activePot");
+  if (ap) ap.textContent = "Pot: " + (pot.value === "familie" ? "Familiepot" : "Kinderpot");
   document.body.dataset.pot = pot.value;
 }
 
-window.render = function(){
-  if(!isDataLoaded) return;
+// === RENDER ===
+window.render = function() {
+  if (!isDataLoaded) return;
   setTheme();
   const s = appState, p = pot.value, y = +year.value, m = +month.value;
-  paydate.textContent = safePayDate(y,m);
-  const mf = q("memoField"); if(mf) mf.value = s.memo || "";
+  paydate.textContent = safePayDate(y, m);
+  const mf = q("memoField"); if (mf) mf.value = s.memo || "";
+
   const bsec = q("birthdaySection");
   if (bsec) bsec.style.display = (p === "kinder") ? "block" : "none";
   if (p === "kinder") __updateBirthdayCountdowns();
+
   let paidTo = 0, openTo = 0, paidCnt = 0, dueM = 0, openNames = [];
   cards.innerHTML = families.map(f => {
-    const e = s.entries[key(p, y, m, f.name)] || {status: "Niet betaald"};
+    const e = s.entries[key(p, y, m, f.name)] || { status: "Niet betaald" };
     const min = minFor(p, f.name, s.mins); dueM += min;
     let famOpen = 0;
     for (let mm = 1; mm <= m; mm++) {
-      const e2 = s.entries[key(p, y, mm, f.name)] || {status: "Niet betaald"};
+      const e2 = s.entries[key(p, y, mm, f.name)] || { status: "Niet betaald" };
       const a = minFor(p, f.name, s.mins);
       if (e2.status === "Betaald") paidTo += a; else famOpen += a;
     }
@@ -411,13 +560,226 @@ window.render = function(){
     if (e.status === "Betaald") paidCnt++; else openNames.push(f.name);
     return `<div class="card"><div class="left"><b>${f.name}</b><div class="kids">Kids: ${f.kids}</div></div><div class="right"><div class="amt">${euro(min)}</div><div class="pill ${e.status==="Betaald"?"ok":"bad"}">${e.status==="Betaald"?"✅ betaald":"❌ open"}</div></div></div>`;
   }).join("");
-  t_in.textContent = euro(paidTo); t_open.textContent = euro(openTo); t_paid.textContent = paidCnt + "/8"; t_due.textContent = euro(dueM);
-  openCountBadge.textContent = openNames.length; openCountBadge.style.display = openNames.length ? "grid" : "none";
+
+  // === KINDERPOT: netto saldo berekenen (ingelegd minus uitbetaald) ===
+  const tileUitb = q("tileUitb");
+  if (p === "kinder") {
+    const payoutsObj = s.payouts || {};
+    let totalPaidOut = 0;
+    for (const [k, v] of Object.entries(payoutsObj)) {
+      if (k.startsWith(String(y) + "|")) totalPaidOut += (v.amount || 0);
+    }
+    const netBal = paidTo - totalPaidOut;
+    t_in.textContent = euro(netBal);
+    q("t_in_lbl").textContent = "💰 Beschikbaar (netto)";
+    if (tileUitb) { tileUitb.style.display = "flex"; q("t_uitb").textContent = euro(totalPaidOut); }
+
+    // Verjaardagstegels bijwerken
+    document.querySelectorAll(".bdayTile[data-child]").forEach(tile => {
+      const childName = tile.dataset.child;
+      const pKey = y + "|" + childName;
+      const payout = payoutsObj[pKey];
+      const badge = tile.querySelector(".bdayPaidBadge");
+      const payBtn = tile.querySelector(".bdayPayBtn");
+      if (payout) {
+        tile.classList.add("uitbetaald");
+        if (badge) { badge.style.display = "inline-block"; badge.textContent = "✅ " + payout.date; }
+        if (payBtn) { payBtn.style.background = "#059669"; payBtn.style.color = "#ecfdf5"; payBtn.textContent = "✅ Uitbetaald"; }
+      } else {
+        tile.classList.remove("uitbetaald");
+        if (badge) badge.style.display = "none";
+        if (payBtn) { payBtn.style.background = "#10b981"; payBtn.style.color = "#022c22"; payBtn.textContent = "💸 Uitbetalen"; }
+      }
+    });
+  } else {
+    t_in.textContent = euro(paidTo);
+    q("t_in_lbl").textContent = "💰 In pot (t/m maand)";
+    if (tileUitb) tileUitb.style.display = "none";
+  }
+
+  t_open.textContent = euro(openTo);
+  t_paid.textContent = paidCnt + "/8";
+  t_due.textContent = euro(dueM);
+  openCountBadge.textContent = openNames.length;
+  openCountBadge.style.display = openNames.length ? "grid" : "none";
   window.__openNames = openNames;
+
+  // === Homepage stats bijwerken ===
+  const now2 = new Date(), cy = now2.getFullYear(), cm = now2.getMonth() + 1;
+
+  // Familiepot: saldo t/m huidige maand + wie open
+  let famPaid = 0, famOpenNames = [];
+  families.forEach(f => {
+    for (let mm = 1; mm <= cm; mm++) {
+      const e2 = s.entries[key("familie", cy, mm, f.name)] || {};
+      if (e2.status === "Betaald") famPaid += minFor("familie", f.name, s.mins);
+    }
+    if ((s.entries[key("familie", cy, cm, f.name)] || {}).status !== "Betaald") famOpenNames.push(f.name);
+  });
+  let famPaidCnt = families.filter(f => (s.entries[key("familie", cy, cm, f.name)] || {}).status === "Betaald").length;
+
+  // Kinderpot: saldo t/m huidige maand (netto) + wie open
+  let kidPaid = 0, kidOpenNames = [];
+  families.forEach(f => {
+    for (let mm = 1; mm <= cm; mm++) {
+      const e2 = s.entries[key("kinder", cy, mm, f.name)] || {};
+      if (e2.status === "Betaald") kidPaid += minFor("kinder", f.name, s.mins);
+    }
+    if ((s.entries[key("kinder", cy, cm, f.name)] || {}).status !== "Betaald") kidOpenNames.push(f.name);
+  });
+  const pyObj2 = s.payouts || {};
+  let totalPaidOutHome = 0, pyThisYear = 0;
+  for (const [k2, v2] of Object.entries(pyObj2)) {
+    if (k2.startsWith(String(cy) + "|")) { totalPaidOutHome += (v2.amount || 0); pyThisYear++; }
+  }
+  const kidNet = kidPaid - totalPaidOutHome;
+  let kidPaidCnt = families.filter(f => (s.entries[key("kinder", cy, cm, f.name)] || {}).status === "Betaald").length;
+
+  const hbfEl = q("homeBalFam"), hbkEl = q("homeBalKid");
+  const hsfEl = q("homeStatFam"), hskEl = q("homeStatKid");
+  if (hbfEl) hbfEl.textContent = euro(famPaid);
+  if (hbkEl) hbkEl.textContent = euro(kidNet);
+  if (hsfEl) hsfEl.textContent = monthNames[cm] + " · " + famPaidCnt + "/8 betaald";
+  if (hskEl) hskEl.textContent = monthNames[cm] + " · " + kidPaidCnt + "/8 betaald · " + pyThisYear + "/6 uitbetaald";
+
+};
+
+
+q("saveMemo").onclick = () => {
+  appState.memo = q("memoField").value;
+  saveCloud();
+  const btn = q("saveMemo");
+  btn.textContent = "✔ Opgeslagen!";
+  setTimeout(() => btn.textContent = "💾 Opslaan", 2000);
+};
+
+// === Uitbetaling kinderpot ===
+window.openUitbetaling = function(btn) {
+  const tile = btn.closest(".bdayTile");
+  const name = tile.dataset.child;
+  const dateText = tile.querySelector(".bdayDate").textContent;
+  uitbCurrentChild = name;
+
+  q("uitbChildName").textContent = name;
+  q("uitbChildDate").textContent = dateText;
+
+  const defaultAmt = (appState.mins && appState.mins.kidPayout) ? appState.mins.kidPayout : DEFAULT_KID_PAYOUT;
+  q("uitbAmount").value = defaultAmt.toFixed(2);
+
+  const y = +year.value;
+  const payoutsObj = appState.payouts || {};
+  const pKey = y + "|" + name;
+  const existing = payoutsObj[pKey];
+
+  const alreadyDiv = q("uitbAlreadyPaid");
+  const processBtn = q("uitbProcess");
+
+  if (existing) {
+    alreadyDiv.style.display = "block";
+    q("uitbAlreadyInfo").textContent = "Uitbetaald op " + existing.date + " · " + euro(existing.amount);
+    processBtn.style.opacity = "0.45";
+    processBtn.disabled = true;
+    processBtn.textContent = "✅ Al uitbetaald dit jaar";
+  } else {
+    alreadyDiv.style.display = "none";
+    processBtn.style.opacity = "1";
+    processBtn.disabled = false;
+    processBtn.textContent = "✅ Uitbetaling verwerkt & afgeschreven";
+  }
+
+  q("uitbetalingSheet").classList.add("show");
+};
+
+q("uitbPayIng").onclick = function() { openIngAppOnly(); };
+
+q("uitbProcess").onclick = function() {
+  if (!uitbCurrentChild) return;
+  const amount = parseFloat(q("uitbAmount").value);
+  if (!amount || amount <= 0) { alert("Voer een geldig bedrag in."); return; }
+  const y = +year.value;
+  const today = new Date();
+  const dateStr = String(today.getDate()).padStart(2, "0") + "-" + String(today.getMonth() + 1).padStart(2, "0") + "-" + today.getFullYear();
+
+  if (!appState.payouts) appState.payouts = {};
+  appState.payouts[y + "|" + uitbCurrentChild] = { amount, date: dateStr };
+  saveCloud();
+
+  q("uitbetalingSheet").classList.remove("show");
+  render();
+  updateBdayAlert();
+
+  const toast = document.createElement("div");
+  toast.style.cssText = "position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#059669;color:#fff;padding:14px 28px;border-radius:16px;font-weight:800;z-index:9999;font-size:15px;box-shadow:0 4px 24px rgba(0,0,0,0.5);pointer-events:none;";
+  toast.textContent = "✅ Uitbetaling opgeslagen!";
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 3000);
+};
+
+// === Verjaardag alert op homepage ===
+const KIDS = [
+  { name: "Naleya",  bday: "04-04" },
+  { name: "Shira",   bday: "21-04" },
+  { name: "Chloé",   bday: "26-06" },
+  { name: "Devan",   bday: "28-06" },
+  { name: "Shreya",  bday: "31-10" },
+  { name: "Amaya",   bday: "29-12" }
+];
+
+function updateBdayAlert() {
+  const alertDiv = q("bdayAlert");
+  if (!alertDiv) return;
+  const now = new Date();
+  const todayMs = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+  const curYear = now.getFullYear();
+  const payoutsObj = appState.payouts || {};
+
+  // Bereken voor elk kind hoeveel dagen tot eerstvolgende verjaardag
+  const upcoming = KIDS
+    .filter(c => !payoutsObj[curYear + "|" + c.name])
+    .map(c => {
+      const [dd, mm] = c.bday.split("-").map(Number);
+      let bdayMs = new Date(curYear, mm - 1, dd).getTime();
+      // Als verjaardag dit jaar al geweest, pak volgend jaar
+      if (bdayMs < todayMs) bdayMs = new Date(curYear + 1, mm - 1, dd).getTime();
+      const diffDays = Math.round((bdayMs - todayMs) / 86400000);
+      return { ...c, diffDays, bdayMs };
+    })
+    .sort((a, b) => a.diffDays - b.diffDays)
+    .slice(0, 2); // Eerstvolgende twee
+
+  if (upcoming.length === 0) { alertDiv.innerHTML = ""; return; }
+
+  alertDiv.innerHTML = upcoming.map(c => {
+    const daysTxt = c.diffDays === 0 ? "🎉 Vandaag jarig!"
+                  : c.diffDays === 1 ? "Morgen jarig"
+                  : `Over ${c.diffDays} dagen`;
+    return `<div class="bdayAlertCard" onclick="gotoUitbetaling('${c.name}')">
+      <div class="aIco">🎂</div>
+      <div class="aInfo">
+        <div class="aTitle">Uitbetaling: ${c.name}</div>
+        <div class="aSub">${c.bday} · ${daysTxt}</div>
+      </div>
+      <div class="aArrow">›</div>
+    </div>`;
+  }).join("");
 }
 
-q("saveMemo").onclick = () => { appState.memo = q("memoField").value; saveCloud(); const btn = q("saveMemo"); const oldTxt = btn.textContent; btn.textContent = "✔"; setTimeout(() => btn.textContent = oldTxt, 2000); };
+window.gotoUitbetaling = function(childName) {
+  openAppWithPot("kinder");
+  setTimeout(() => {
+    const tabV = q("tabKinderVerjaardagen");
+    if (tabV) tabV.click();
+    setTimeout(() => {
+      const tile = document.querySelector(`.bdayTile[data-child="${childName}"]`);
+      if (tile) {
+        const btn = tile.querySelector(".bdayPayBtn");
+        if (btn) openUitbetaling(btn);
+      }
+    }, 150);
+  }, 150);
+};
 
+// === Sheet open/sluit ===
 document.addEventListener("click", e => {
   const tile = e.target.closest(".bTile[data-open]");
   if (tile) {
@@ -435,38 +797,49 @@ document.addEventListener("click", e => {
 
 q("hdrBeheer").onclick = () => q("beheerSheet").classList.add("show");
 
-function openStatus(){
+function openStatus() {
   const s = appState, p = pot.value, y = +year.value, m = +month.value;
-  q("statusContext").textContent = `${p==="familie"?"Familiepot":"Kinderpot"} – ${monthNames[m]} ${y}`;
+  q("statusContext").textContent = `${p === "familie" ? "Familiepot" : "Kinderpot"} – ${monthNames[m]} ${y}`;
   q("statusList").innerHTML = families.map(f => {
     const k = key(p, y, m, f.name);
-    const e = s.entries[k] || {status: "Niet betaald"};
-    return `<div class="card statusRow ${e.status === "Betaald" ? "paid" : ""}"> <div class="left"><b>${f.name}</b><div class="kids">${f.kids}</div></div><div class="right"><select data-fam="${f.name}"><option value="Niet betaald" ${e.status==="Niet betaald" ? "selected" : ""}>Niet betaald</option><option value="Betaald" ${e.status==="Betaald" ? "selected" : ""}>Betaald</option></select></div></div>`;
+    const e = s.entries[k] || { status: "Niet betaald" };
+    return `<div class="statusRow ${e.status === "Betaald" ? "paid" : ""}"><div class="left"><b>${f.name}</b><div class="kids">${f.kids}</div></div><div class="right"><select data-fam="${f.name}"><option value="Niet betaald" ${e.status === "Niet betaald" ? "selected" : ""}>Niet betaald</option><option value="Betaald" ${e.status === "Betaald" ? "selected" : ""}>Betaald</option></select></div></div>`;
   }).join("");
-  document.querySelectorAll("#statusList select").forEach(sel => { sel.addEventListener("change", () => { sel.closest(".statusRow").classList.toggle("paid", sel.value === "Betaald"); }); });
+  document.querySelectorAll("#statusList select").forEach(sel => {
+    sel.addEventListener("change", () => { sel.closest(".statusRow").classList.toggle("paid", sel.value === "Betaald"); });
+  });
   q("statusSheet").classList.add("show");
 }
 
-q("saveStatusTop").onclick = () => { const p = pot.value, y = +year.value, m = +month.value; document.querySelectorAll("#statusList select").forEach(sel => { appState.entries[key(p, y, m, sel.dataset.fam)] = {status: sel.value}; }); saveCloud(); q("statusSheet").classList.remove("show"); };
-q("btnAllPaid").onclick = () => { document.querySelectorAll("#statusList select").forEach(s=>{s.value="Betaald";s.dispatchEvent(new Event("change"));}); };
-q("btnResetAll").onclick = () => { document.querySelectorAll("#statusList select").forEach(s=>{s.value="Niet betaald";s.dispatchEvent(new Event("change"));}); };
+q("saveStatusTop").onclick = () => {
+  const p = pot.value, y = +year.value, m = +month.value;
+  document.querySelectorAll("#statusList select").forEach(sel => {
+    appState.entries[key(p, y, m, sel.dataset.fam)] = { status: sel.value };
+  });
+  saveCloud();
+  q("statusSheet").classList.remove("show");
+};
+q("btnAllPaid").onclick = () => { document.querySelectorAll("#statusList select").forEach(s => { s.value = "Betaald"; s.dispatchEvent(new Event("change")); }); };
+q("btnResetAll").onclick = () => { document.querySelectorAll("#statusList select").forEach(s => { s.value = "Niet betaald"; s.dispatchEvent(new Event("change")); }); };
 
-function openOpen(){ const openNames = window.__openNames || []; q("openList").innerHTML = !openNames.length ? `<div class="card"><b>Alles betaald 🎉</b></div>` : openNames.map(n => `<div class="card"><b>${n}</b></div>`).join(""); q("openSheet").classList.add("show"); }
+function openOpen() {
+  const openNames = window.__openNames || [];
+  q("openList").innerHTML = !openNames.length ? `<div class="card"><b>Alles betaald 🎉</b></div>` : openNames.map(n => `<div class="card"><b>${n}</b></div>`).join("");
+  q("openSheet").classList.add("show");
+}
 
-// HIER GEBEURT DE ACTIE: WHATSAPP BERICHTEN MET GEFORCEERDE LINKEN
 q("btnReminder").onclick = () => {
   const open = window.__openNames || [];
-  // ALTIJD L_FAM OF L_KID GEBRUIKEN
-  const link = (pot.value === "familie") ? L_FAM : L_KID; 
+  const link = (pot.value === "familie") ? L_FAM : L_KID;
   const pName = pot.value === "familie" ? "Familiepot 💙" : "Kinderpot 💜";
-  const msg = `Hoi allemaal! 👋\n\nEven een vriendelijke herinnering voor de *${pName}* van *${monthNames[+month.value]} ${year.value}*. ✨\n\n📅 Betaaldatum: ${paydate.textContent}\n\nNog openstaand:\n${open.length ? open.map(n=>"• "+n).join("\n") : "—"}\n\nBetaallink:\n${link}\n\nAlvast super bedankt! 🙏`;
+  const msg = `Hoi allemaal! 👋\n\nEven een vriendelijke herinnering voor de *${pName}* van *${monthNames[+month.value]} ${year.value}*. ✨\n\n📅 Betaaldatum: ${paydate.textContent}\n\nNog openstaand:\n${open.length ? open.map(n => "• " + n).join("\n") : "—"}\n\nBetaallink:\n${link}\n\nAlvast super bedankt! 🙏`;
   window.open("https://wa.me/?text=" + encodeURIComponent(msg));
 };
 
-function openWhats(){ 
-    q("whatsContext").textContent = `${pot.value} – ${monthNames[+month.value]} ${year.value}`; 
-    q("payLinkPreview").textContent = (pot.value === "familie") ? L_FAM : L_KID; 
-    q("whatsSheet").classList.add("show"); 
+function openWhats() {
+  q("whatsContext").textContent = `${pot.value} – ${monthNames[+month.value]} ${year.value}`;
+  q("payLinkPreview").textContent = (pot.value === "familie") ? L_FAM : L_KID;
+  q("whatsSheet").classList.add("show");
 }
 
 q("waReminder").onclick = q("btnReminder").onclick;
@@ -478,115 +851,171 @@ q("waThanks").onclick = () => {
 };
 
 q("waShare").onclick = () => {
-  const paid = 8-(window.__openNames?.length||0), open = window.__openNames?.length||0;
+  const paid = 8 - (window.__openNames?.length || 0), open = window.__openNames?.length || 0;
   const pName = pot.value === "familie" ? "Familiepot 💙" : "Kinderpot 💜";
   const msg = `📊 *Tussenstand ${pName}* – ${monthNames[+month.value]} ${year.value}\n\n✅ Betaald: ${paid}/8\n⏳ Nog open: ${open}\n\nWe zijn er bijna! 💪`;
   window.open("https://wa.me/?text=" + encodeURIComponent(msg));
 };
 
-window.__waSendPayDates = function(){
-    const y = year.value;
-    const pName = pot.value === "familie" ? "Familiepot" : "Kinderpot"; 
-    const pNameFancy = pot.value === "familie" ? "Familiepot 💙" : "Kinderpot 💜"; 
-    const dates = payDates[y];
-    if(!dates) return alert("Geen data voor " + y);
-    
-    const firstDateParts = dates[1].split("-"); 
-    const gDate = firstDateParts[2] + firstDateParts[1] + firstDateParts[0]; 
-    const gLink = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=Betaaldag+${pName}&dates=${gDate}T090000Z/${gDate}T100000Z&recur=RRULE:FREQ=MONTHLY;BYDAY=-1WE&details=Vergeet+niet+de+${pName}+over+te+maken!`;
-
-    let msg = `Lieve allemaal! 💖\n\nHierbij alvast een handig overzichtje van de betaaldata voor *${y}* van de *${pNameFancy}*. 📅 Zo kunnen we ze alvast in de agenda zetten!\n\n`;
-    for(let i=1; i<=12; i++){
-        msg += `• ${monthNames[i]}: ${dates[i]}\n`;
-    }
-    
-    msg += `\n💡 *Tip:* Klik hier om ze direct in je Google Agenda te zetten:\n${gLink}\n\nLiefs, Gaby 💐`;
-    
-    window.open("https://wa.me/?text=" + encodeURIComponent(msg));
+window.__waSendPayDates = function() {
+  const y = year.value;
+  const pName = pot.value === "familie" ? "Familiepot" : "Kinderpot";
+  const pNameFancy = pot.value === "familie" ? "Familiepot 💙" : "Kinderpot 💜";
+  const dates = payDates[y];
+  if (!dates) return alert("Geen data voor " + y);
+  const firstDateParts = dates[1].split("-");
+  const gDate = firstDateParts[2] + firstDateParts[1] + firstDateParts[0];
+  const gLink = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=Betaaldag+${pName}&dates=${gDate}T090000Z/${gDate}T100000Z&recur=RRULE:FREQ=MONTHLY;BYDAY=-1WE&details=Vergeet+niet+de+${pName}+over+te+maken!`;
+  let msg = `Lieve allemaal! 💖\n\nHierbij alvast een handig overzichtje van de betaaldata voor *${y}* van de *${pNameFancy}*. 📅\n\n`;
+  for (let i = 1; i <= 12; i++) { msg += `• ${monthNames[i]}: ${dates[i]}\n`; }
+  msg += `\n💡 *Tip:* Klik hier om ze direct in je Google Agenda te zetten:\n${gLink}\n\nLiefs, Gaby 💐`;
+  window.open("https://wa.me/?text=" + encodeURIComponent(msg));
 };
 q("waPayDates").onclick = window.__waSendPayDates;
 
-q("downloadIcsBtn").onclick = function(){
-    const y = year.value;
-    const pName = pot.value === "familie" ? "Familiepot" : "Kinderpot";
-    const dates = payDates[y];
-    if(!dates) return alert("Geen data voor " + y);
-
-    let icsContent = "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//Moek//PotDashboard//NL\nCALSCALE:GREGORIAN\nMETHOD:PUBLISH\n";
-    
-    for(let i=1; i<=12; i++){
-        const dateStr = dates[i]; 
-        const parts = dateStr.split("-"); 
-        const icsDate = parts[2] + parts[1] + parts[0]; 
-        
-        icsContent += "BEGIN:VEVENT\n";
-        icsContent += "DTSTART;VALUE=DATE:" + icsDate + "\n";
-        icsContent += "DTEND;VALUE=DATE:" + icsDate + "\n";
-        icsContent += "SUMMARY:Betaaldag " + pName + "\n";
-        icsContent += "DESCRIPTION:Vergeet niet de " + pName + " over te maken!\n";
-        icsContent += "STATUS:CONFIRMED\n";
-        icsContent += "TRANSP:TRANSPARENT\n"; 
-        icsContent += "END:VEVENT\n";
-    }
-    icsContent += "END:VCALENDAR";
-
-    const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
-    const link = document.createElement('a');
-    link.href = window.URL.createObjectURL(blob);
-    link.setAttribute('download', 'betaaldata_' + y + '.ics');
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+q("downloadIcsBtn").onclick = function() {
+  const y = year.value;
+  const pName = pot.value === "familie" ? "Familiepot" : "Kinderpot";
+  const dates = payDates[y];
+  if (!dates) return alert("Geen data voor " + y);
+  let icsContent = "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//Moek//PotDashboard//NL\nCALSCALE:GREGORIAN\nMETHOD:PUBLISH\n";
+  for (let i = 1; i <= 12; i++) {
+    const dateStr = dates[i];
+    const parts = dateStr.split("-");
+    const icsDate = parts[2] + parts[1] + parts[0];
+    icsContent += `BEGIN:VEVENT\nDTSTART;VALUE=DATE:${icsDate}\nDTEND;VALUE=DATE:${icsDate}\nSUMMARY:Betaaldag ${pName}\nDESCRIPTION:Vergeet niet de ${pName} over te maken!\nSTATUS:CONFIRMED\nTRANSP:TRANSPARENT\nEND:VEVENT\n`;
+  }
+  icsContent += "END:VCALENDAR";
+  const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+  const link = document.createElement('a');
+  link.href = window.URL.createObjectURL(blob);
+  link.setAttribute('download', 'betaaldata_' + y + '.ics');
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
 };
 
-function openOver(){ const s = appState, p = pot.value, y = +year.value, m = +month.value; q("overContext").textContent = `${p} – t/m ${monthNames[m]} ${y}`; let paidTo=0, openTo=0, paidCnt=0, openCnt=0; families.forEach(f => { if ((s.entries[key(p,y,m,f.name)]||{}).status==="Betaald") paidCnt++; else openCnt++; for(let mm=1; mm<=m; mm++){ const amt = minFor(p, f.name, s.mins); if((s.entries[key(p,y,mm,f.name)]||{}).status==="Betaald") paidTo+=amt; else openTo+=amt; } }); q("ovIn").textContent = euro(paidTo); q("ovOpen").textContent = euro(openTo); q("ovCount").textContent = `${paidCnt}/8`; q("ovCount2").textContent = `open: ${openCnt}`; q("overSheet").classList.add("show"); }
+function openOver() {
+  const s = appState, p = pot.value, y = +year.value, m = +month.value;
+  q("overContext").textContent = `${p} – t/m ${monthNames[m]} ${y}`;
+  let paidTo = 0, openTo = 0, paidCnt = 0, openCnt = 0;
+  families.forEach(f => {
+    if ((s.entries[key(p, y, m, f.name)] || {}).status === "Betaald") paidCnt++; else openCnt++;
+    for (let mm = 1; mm <= m; mm++) {
+      const amt = minFor(p, f.name, s.mins);
+      if ((s.entries[key(p, y, mm, f.name)] || {}).status === "Betaald") paidTo += amt; else openTo += amt;
+    }
+  });
+  q("ovIn").textContent = euro(paidTo);
+  q("ovOpen").textContent = euro(openTo);
+  q("ovCount").textContent = `${paidCnt}/8`;
+  q("ovCount2").textContent = `open: ${openCnt}`;
+  q("overSheet").classList.add("show");
+}
 q("btnPrint").onclick = () => window.print();
 q("btnOverShare").onclick = () => window.open("https://wa.me/?text=" + encodeURIComponent(`Overzicht ${q("overContext").textContent}\n💰 In pot: ${q("ovIn").textContent}\n⏳ Open: ${q("ovOpen").textContent}`));
 
-function loadSettings(){ const s = appState; q("setFam").value = s.mins.fam; q("setAni").value = s.mins.ani; q("setKid").value = s.mins.kid; q("setLinkFam").value = s.links.familie; q("setLinkKid").value = s.links.kinder; }
-q("saveSettingsBtn").onclick = () => { const s = appState; s.mins.fam = parseFloat(q("setFam").value)||32; s.mins.ani = parseFloat(q("setAni").value)||16; s.mins.kid = parseFloat(q("setKid").value)||15; s.links.familie = q("setLinkFam").value.trim(); s.links.kinder = q("setLinkKid").value.trim(); saveCloud(); alert("Opgeslagen!"); render(); };
+function loadSettings() {
+  const s = appState;
+  q("setFam").value = s.mins.fam;
+  q("setAni").value = s.mins.ani;
+  q("setKid").value = s.mins.kid;
+  q("setKidPayout").value = s.mins.kidPayout || DEFAULT_KID_PAYOUT;
+  q("setLinkFam").value = s.links.familie;
+  q("setLinkKid").value = s.links.kinder;
+}
+q("saveSettingsBtn").onclick = () => {
+  const s = appState;
+  s.mins.fam = parseFloat(q("setFam").value) || 32;
+  s.mins.ani = parseFloat(q("setAni").value) || 16;
+  s.mins.kid = parseFloat(q("setKid").value) || 15;
+  s.mins.kidPayout = parseFloat(q("setKidPayout").value) || DEFAULT_KID_PAYOUT;
+  s.links.familie = q("setLinkFam").value.trim();
+  s.links.kinder = q("setLinkKid").value.trim();
+  saveCloud();
+  alert("Opgeslagen!");
+  render();
+};
 
-const startGate=q("startGate"), appWrap=q("appWrap");
-window.openAppWithPot = function(p){ pot.value = p; startGate.style.display="none"; appWrap.hidden=false; render(); }
+// === Navigatie ===
+const startGate = q("startGate"), appWrap = q("appWrap");
+window.openAppWithPot = function(p) { pot.value = p; startGate.style.display = "none"; appWrap.hidden = false; render(); };
 q("chooseFamilie").onclick = () => openAppWithPot("familie");
 q("chooseKinder").onclick = () => openAppWithPot("kinder");
-q("goHome").onclick = () => { appWrap.hidden=true; startGate.style.display="flex"; };
+q("goHome").onclick = () => { appWrap.hidden = true; startGate.style.display = "flex"; };
 
-YEARS.forEach(y => { const o=document.createElement("option"); o.value=y; o.textContent=y; year.appendChild(o); });
-for(let i=1;i<=12;i++){ const o=document.createElement("option"); o.value=i; o.textContent=monthNames[i]; month.appendChild(o); }
-const now = new Date(); year.value = YEARS.includes(now.getFullYear())?now.getFullYear():YEARS[0]; month.value = now.getMonth()+1;
-year.onchange=month.onchange=pot.onchange=render;
+// Jaar/maand dropdowns vullen
+YEARS.forEach(y => { const o = document.createElement("option"); o.value = y; o.textContent = y; year.appendChild(o); });
+for (let i = 1; i <= 12; i++) { const o = document.createElement("option"); o.value = i; o.textContent = monthNames[i]; month.appendChild(o); }
+const now = new Date();
+year.value = YEARS.includes(now.getFullYear()) ? now.getFullYear() : YEARS[0];
+month.value = now.getMonth() + 1;
+year.onchange = month.onchange = pot.onchange = render;
 
-function __updateBirthdayCountdowns(){ document.querySelectorAll(".bdayTile[data-bday]").forEach(t=>{ const p = (t.dataset.bday||"").split("-"); if(p.length!==2)return; const now = new Date(), today = new Date(now.getFullYear(), now.getMonth(), now.getDate()); let target = new Date(today.getFullYear(), parseInt(p[1])-1, parseInt(p[0])); if(target<today) target = new Date(today.getFullYear()+1, parseInt(p[1])-1, parseInt(p[0])); const diff = Math.round((target-today)/86400000); const el = t.querySelector(".bdayCountdown"); if(el) el.textContent = diff===0 ? "🎉 vandaag!" : (diff===1?"⏳ morgen":`⏳ nog ${diff} dagen`); }); }
-window.openIngAppOnly = function(){ const ua = navigator.userAgent||""; if(/Android/i.test(ua)) window.location.href="intent://#Intent;scheme=ingbankieren;package=com.ing.mobile;end;"; else if(/iPhone|iPad/i.test(ua)) window.location.href="ingbankieren://"; else alert("Open ING app handmatig."); };
-window.sendCongrats = function(btn){ const name = btn.closest(".bdayTile").querySelector(".bdayName").textContent; const isBoy = name.toLowerCase() === "devan"; window.open("https://wa.me/?text=" + encodeURIComponent(`${isBoy?"🧒🎉":"👧🎉"} *Van harte gefeliciteerd ${name}!* 🎂\n\nFijne verjaardag! 💖✨\n\nLiefs,\nGaby 💐`)); };
+// Verjaardag countdowns
+function __updateBirthdayCountdowns() {
+  document.querySelectorAll(".bdayTile[data-bday]").forEach(t => {
+    const p = (t.dataset.bday || "").split("-");
+    if (p.length !== 2) return;
+    const now = new Date(), today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    let target = new Date(today.getFullYear(), parseInt(p[1]) - 1, parseInt(p[0]));
+    if (target < today) target = new Date(today.getFullYear() + 1, parseInt(p[1]) - 1, parseInt(p[0]));
+    const diff = Math.round((target - today) / 86400000);
+    const el = t.querySelector(".bdayCountdown");
+    if (el) el.textContent = diff === 0 ? "🎉 vandaag!" : (diff === 1 ? "⏳ morgen" : `⏳ nog ${diff} dagen`);
+  });
+}
 
-(function(){
-  const miniTabs = document.getElementById('kinderMiniTabs');
-  const tabO = document.getElementById('tabKinderOverzicht');
-  const tabV = document.getElementById('tabKinderVerjaardagen');
-  function getEls(){ return { potSel: document.getElementById('pot'), birthday: document.getElementById('birthdaySection'), ov: document.getElementById('kinderOverviewWrap') }; }
-  function showO(){ const {birthday, ov} = getEls(); if(ov) ov.style.display='block'; if(birthday) birthday.style.display='none'; if(tabO) tabO.classList.add('active'); if(tabV) tabV.classList.remove('active'); }
-  function showV(){ const {birthday, ov} = getEls(); if(ov) ov.style.display='none'; if(birthday) birthday.style.display='block'; if(tabV) tabV.classList.add('active'); if(tabO) tabO.classList.remove('active'); }
-  if(tabO) tabO.onclick = showO; if(tabV) tabV.onclick = showV;
-  function syncPot(){ const {potSel, birthday, ov} = getEls(); if(!potSel || !miniTabs) return; if(potSel.value === 'kinder'){ miniTabs.style.display = 'flex'; showO(); } else { miniTabs.style.display = 'none'; if(birthday) birthday.style.display = 'none'; if(ov) ov.style.display = 'block'; } }
-  document.addEventListener('change', (e)=>{ if(e.target && e.target.id === 'pot') syncPot(); });
-  const prev = window.openAppWithPot; window.openAppWithPot = function(p){ const r = prev.apply(this, arguments); requestAnimationFrame(syncPot); return r; };
-  const prevRender = window.render; window.render = function(){ const r = prevRender.apply(this, arguments); requestAnimationFrame(syncPot); return r; };
-  document.addEventListener('DOMContentLoaded', ()=>requestAnimationFrame(syncPot));
+// ING app openen
+window.openIngAppOnly = function() {
+  const ua = navigator.userAgent || "";
+  if (/Android/i.test(ua)) window.location.href = "intent://#Intent;scheme=ingbankieren;package=com.ing.mobile;end;";
+  else if (/iPhone|iPad/i.test(ua)) window.location.href = "ingbankieren://";
+  else alert("Open de ING app handmatig.");
+};
+
+// Felicitatie WhatsApp
+window.sendCongrats = function(btn) {
+  const name = btn.closest(".bdayTile").querySelector(".bdayName").textContent;
+  const isBoy = name.toLowerCase() === "devan";
+  window.open("https://wa.me/?text=" + encodeURIComponent(`${isBoy ? "🧒🎉" : "👧🎉"} *Van harte gefeliciteerd ${name}!* 🎂\n\nFijne verjaardag! 💖✨\n\nLiefs,\nGaby 💐`));
+};
+
+// Kinder mini-tabs sync
+(function() {
+  const miniTabs = q('kinderMiniTabs');
+  const tabO = q('tabKinderOverzicht');
+  const tabV = q('tabKinderVerjaardagen');
+  function getEls() { return { potSel: q('pot'), birthday: q('birthdaySection'), ov: q('kinderOverviewWrap') }; }
+  function showO() { const { birthday, ov } = getEls(); if (ov) ov.style.display = 'block'; if (birthday) birthday.style.display = 'none'; if (tabO) tabO.classList.add('active'); if (tabV) tabV.classList.remove('active'); }
+  function showV() { const { birthday, ov } = getEls(); if (ov) ov.style.display = 'none'; if (birthday) birthday.style.display = 'block'; if (tabV) tabV.classList.add('active'); if (tabO) tabO.classList.remove('active'); }
+  if (tabO) tabO.onclick = showO;
+  if (tabV) tabV.onclick = showV;
+  function syncPot() { const { potSel, birthday, ov } = getEls(); if (!potSel || !miniTabs) return; if (potSel.value === 'kinder') { miniTabs.style.display = 'flex'; showO(); } else { miniTabs.style.display = 'none'; if (birthday) birthday.style.display = 'none'; if (ov) ov.style.display = 'block'; } }
+  document.addEventListener('change', (e) => { if (e.target && e.target.id === 'pot') syncPot(); });
+  const prev = window.openAppWithPot;
+  window.openAppWithPot = function(p) { const r = prev.apply(this, arguments); requestAnimationFrame(syncPot); return r; };
+  const prevRender = window.render;
+  window.render = function() { const r = prevRender.apply(this, arguments); requestAnimationFrame(syncPot); return r; };
+  document.addEventListener('DOMContentLoaded', () => requestAnimationFrame(syncPot));
 })();
 
+// Install tip
 window.closeInstallTip = function() { q("installTip").style.display = "none"; localStorage.setItem("installTipSeen", "true"); };
-(function(){
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-    const hasSeen = localStorage.getItem("installTipSeen");
-    if (!isStandalone && !hasSeen) {
-        const ua = navigator.userAgent || "";
-        const isIOS = /iPhone|iPad|iPod/i.test(ua); const isAndroid = /Android/i.test(ua);
-        if (isIOS) q("iosTip").style.display = "block"; else if (isAndroid) q("androidTip").style.display = "block"; else return;
-        setTimeout(() => q("installTip").style.display = "flex", 1000);
-    }
+(function() {
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  const hasSeen = localStorage.getItem("installTipSeen");
+  if (!isStandalone && !hasSeen) {
+    const ua = navigator.userAgent || "";
+    const isIOS = /iPhone|iPad|iPod/i.test(ua);
+    const isAndroid = /Android/i.test(ua);
+    if (isIOS) q("iosTip").style.display = "block";
+    else if (isAndroid) q("androidTip").style.display = "block";
+    else return;
+    setTimeout(() => q("installTip").style.display = "block", 1500);
+  }
 })();
+
 startGate.style.display = "flex";
 </script>
 </body>
