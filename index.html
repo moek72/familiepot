@@ -241,6 +241,16 @@ button:active { transform: scale(0.96); }
     <div class="startTitle">Welkom Gaby 💐</div>
     <p class="startSub">Kies welke pot je wilt beheren</p>
 
+    <!-- Moek chat — direct onder Gaby -->
+    <div id="homeChatBtn" onclick="window.__openChat && window.__openChat()" style="display:flex;align-items:center;gap:12px;margin-bottom:12px;cursor:pointer;padding:14px 16px;background:rgba(109,40,217,0.15);border:1px solid rgba(232,121,249,0.3);border-radius:18px;transition:background 0.2s;" onmouseover="this.style.background='rgba(109,40,217,0.25)'" onmouseout="this.style.background='rgba(109,40,217,0.15)'">
+      <img src="moek.png" alt="Moek" style="width:56px;height:auto;filter:drop-shadow(0 2px 8px rgba(0,0,0,0.4));" onerror="this.style.display='none'">
+      <div style="flex:1;">
+        <div style="font-size:15px;font-weight:900;color:#e879f9;">Vraag het aan Moek 💬</div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.45);margin-top:3px;">Tik hier voor vragen over de pot</div>
+      </div>
+      <div style="font-size:20px;color:rgba(232,121,249,0.4);">›</div>
+    </div>
+
     <div id="chooseFamilie" class="homePotTile blue" role="button" tabindex="0">
       <div class="hptIco">💙</div>
       <div class="hptInfo">
@@ -262,15 +272,6 @@ button:active { transform: scale(0.96); }
     <!-- Verjaardag actie alert -->
     <div id="bdayAlert" style="margin-top:14px;"></div>
 
-    <!-- Moek als chatknop op homepage -->
-    <div id="homeChatBtn" onclick="window.__openChat && window.__openChat()" style="display:flex;align-items:flex-end;gap:12px;margin-top:16px;cursor:pointer;padding:12px 14px;background:rgba(109,40,217,0.12);border:1px solid rgba(232,121,249,0.25);border-radius:16px;transition:background 0.2s;" onmouseover="this.style.background='rgba(109,40,217,0.22)'" onmouseout="this.style.background='rgba(109,40,217,0.12)'">
-      <img src="moek.png" alt="Moek" style="width:64px;height:auto;filter:drop-shadow(0 3px 8px rgba(0,0,0,0.4));" onerror="this.style.display='none'">
-      <div>
-        <div style="font-size:14px;font-weight:900;color:#e879f9;">Vraag het aan Moek 💬</div>
-        <div style="font-size:12px;color:rgba(255,255,255,0.5);margin-top:3px;">Tik hier voor vragen over de pot</div>
-      </div>
-      <div style="margin-left:auto;font-size:22px;color:rgba(232,121,249,0.5);">›</div>
-    </div>
   </div>
 </div>
 
@@ -1386,6 +1387,7 @@ Regels:
 - Als de pot negatief staat: leg rustig uit dat dit normaal is na verjaardagen
 - Geen technisch jargon, geen opsommingstekens tenzij het echt duidelijker wordt
 - Sluit soms af met een kort bemoedigend zinnetje
+- Als Gaby iets vraagt dat niets met de pot te maken heeft, reageer dan vriendelijk maar stuur haar terug: "Haha, dat weet ik niet 😄 — maar over de pot kan ik je alles vertellen!"
 
 ACTUELE POT-GEGEVENS:
 ${bouwContext()}`;
@@ -1412,6 +1414,8 @@ ${bouwContext()}`;
   async function verstuur() {
     const txt = input.value.trim();
     if (!txt) return;
+    // Verwijder eventuele losse chips-rij als die nog zichtbaar is
+    chatBody.querySelectorAll(".chatChips").forEach(el => el.remove());
     addUserMsg(txt);
     input.value = "";
     toonTyping();
