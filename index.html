@@ -1338,7 +1338,7 @@ startGate.style.display = "flex";
 
   // === GEMINI API ===
   const GEMINI_KEY = "AIzaSyBepV6OHYgu4-uigxZdn52V0jywww93oK8";
-  const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`;
+  const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`;
   let chatGeschiedenis = [];
 
   function bouwContext() {
@@ -1404,9 +1404,12 @@ ${bouwContext()}`;
         generationConfig: { maxOutputTokens: 350, temperature: 0.7 }
       })
     });
-    if (!resp.ok) throw new Error(resp.status);
+    if (!resp.ok) {
+      const errTxt = await resp.text();
+      throw new Error(`HTTP ${resp.status}: ${errTxt}`);
+    }
     const data = await resp.json();
-    const antwoord = data.candidates[0].content.parts[0].text.trim();
+    const antwoord = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "(leeg antwoord)";
     chatGeschiedenis.push({ role: "model", parts: [{ text: antwoord }] });
     return antwoord;
   }
@@ -1425,7 +1428,7 @@ ${bouwContext()}`;
       addBotMsg(antwoord);
     } catch(err) {
       verwijderTyping();
-      addBotMsg(`Oeps, even geen verbinding 😅\n\nVraag het lekker aan <a href="https://chatgpt.com" target="_blank" style="color:#e879f9;font-weight:800;">ChatGPT</a> — of probeer het zo meteen nog een keer!`);
+      addBotMsg(`⚠️ Fout: ${err.message}`);
     }
   }
 
