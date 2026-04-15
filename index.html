@@ -1387,7 +1387,7 @@ Regels:
 - Als de pot negatief staat: leg rustig uit dat dit normaal is na verjaardagen
 - Geen technisch jargon, geen opsommingstekens tenzij het echt duidelijker wordt
 - Sluit soms af met een kort bemoedigend zinnetje
-- Als Gaby iets vraagt dat niets met de pot te maken heeft, reageer dan vriendelijk maar stuur haar terug: "Haha, dat weet ik niet 😄 — maar over de pot kan ik je alles vertellen!"
+- Als Gaby iets vraagt dat niets met de pot te maken heeft, zeg dan: "Haha, dat weet ik niet 😄 Vraag dat lekker aan ChatGPT → chatgpt.com"
 
 ACTUELE POT-GEGEVENS:
 ${bouwContext()}`;
@@ -1425,8 +1425,7 @@ ${bouwContext()}`;
       addBotMsg(antwoord);
     } catch(err) {
       verwijderTyping();
-      // Fallback op rule-based als API niet bereikbaar is
-      addBotMsg(berekenAntwoord(txt));
+      addBotMsg(`Oeps, even geen verbinding 😅\n\nVraag het lekker aan <a href="https://chatgpt.com" target="_blank" style="color:#e879f9;font-weight:800;">ChatGPT</a> — of probeer het zo meteen nog een keer!`);
     }
   }
 
