@@ -1237,7 +1237,16 @@ startGate.style.display = "flex";
     input.focus();
     if (!gestart) {
       gestart = true;
-      addBotMsg("Hoi Gaby! 👋 Ik ben het, Moek.\n\nStel me maar gerust een vraag over de pot. Ik reken het voor je uit!\n\nBijv:\n• \"Hoeveel zit er in de kinderpot?\"\n• \"Wie heeft er nog niet betaald?\"\n• \"Wanneer is de volgende verjaardag?\"");
+      addBotMsg("Hoi Gaby! 👋 Ik ben het, Moek.\n\nWat wil je weten? Tik op een knop of typ gewoon je vraag:");
+      addSuggestions([
+        "Hoe staat de kinderpot?",
+        "Hoe staat de familiepot?",
+        "Wie heeft nog niet betaald?",
+        "Wanneer is de volgende verjaardag?",
+        "Wat is er al uitbetaald?",
+        "Geef me een overzicht van het jaar",
+        "Waarom staat de pot min?"
+      ]);
     }
   }
   function closeChat() { win.classList.remove("open"); }
@@ -1263,6 +1272,27 @@ startGate.style.display = "flex";
     div.className = "chatMsg bot";
     div.innerHTML = `<img src="moek.png" alt="Moek" onerror="this.style.display='none'"><div class="chatBubble">${tekst}</div>`;
     chatBody.appendChild(div);
+    chatBody.scrollTop = chatBody.scrollHeight;
+  }
+
+  function addSuggestions(opties) {
+    const wrap = document.createElement("div");
+    wrap.style.cssText = "display:flex;flex-wrap:wrap;gap:7px;padding:2px 0 4px 42px;";
+    opties.forEach(opt => {
+      const btn = document.createElement("button");
+      btn.textContent = opt;
+      btn.style.cssText = "background:rgba(232,121,249,0.15);border:1px solid rgba(232,121,249,0.4);color:#e879f9;padding:7px 12px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;transition:background 0.15s;";
+      btn.onmouseover = () => btn.style.background = "rgba(232,121,249,0.28)";
+      btn.onmouseout = () => btn.style.background = "rgba(232,121,249,0.15)";
+      btn.onclick = () => {
+        wrap.remove();
+        addUserMsg(opt);
+        toonTyping();
+        setTimeout(() => { verwijderTyping(); addBotMsg(berekenAntwoord(opt)); }, 600);
+      };
+      wrap.appendChild(btn);
+    });
+    chatBody.appendChild(wrap);
     chatBody.scrollTop = chatBody.scrollHeight;
   }
   function addUserMsg(tekst) {
@@ -1297,70 +1327,98 @@ startGate.style.display = "flex";
   input.addEventListener("keydown", e => { if (e.key === "Enter") verstuur(); });
   q("chatSendBtn").onclick = verstuur;
 
+  // Helper functies voor chatbot berekeningen
+  function kidSaldo(cy, cm) {
+    let ingelegd = 0;
+    families.forEach(f => {
+      for (let mm = 1; mm <= cm; mm++) {
+        const e2 = appState.entries[key("kinder", cy, mm, f.name)] || {};
+        if (e2.status === "Betaald") ingelegd += minFor("kinder", f.name, appState.mins);
+      }
+    });
+    const pyObj = appState.payouts || {};
+    let uitbetaald = 0, uitbLijst = [];
+    for (const [k, v] of Object.entries(pyObj)) {
+      if (k.startsWith(String(cy) + "|")) {
+        uitbetaald += (v.amount || 0);
+        uitbLijst.push({ naam: k.split("|")[1], bedrag: v.amount, datum: v.date });
+      }
+    }
+    const stortTot = (appState.stortingen || []).reduce((som, st) => {
+      if (st.pot !== "kinder") return som;
+      const parts = (st.date || "").split("-");
+      const stJr = parseInt(parts.find(p2 => p2.length === 4) || "0", 10);
+      return stJr === cy ? som + (Number(st.amount) || 0) : som;
+    }, 0);
+    return { ingelegd, stortTot, uitbetaald, uitbLijst, netto: ingelegd + stortTot - uitbetaald };
+  }
+
+  function famSaldo(cy, cm) {
+    let ingelegd = 0;
+    families.forEach(f => {
+      for (let mm = 1; mm <= cm; mm++) {
+        const e2 = appState.entries[key("familie", cy, mm, f.name)] || {};
+        if (e2.status === "Betaald") ingelegd += minFor("familie", f.name, appState.mins);
+      }
+    });
+    let open = families.filter(f => (appState.entries[key("familie", cy, cm, f.name)] || {}).status !== "Betaald").map(f => f.name);
+    return { ingelegd, open };
+  }
+
   function berekenAntwoord(vraag) {
     const t = vraag.toLowerCase().trim();
     const now = new Date(), cy = now.getFullYear(), cm = now.getMonth() + 1;
 
     // Begroeting
-    if (/^(hallo|hoi|hey|hee|hi|goedemorgen|goedemiddag|goedenavond|dag)\b/.test(t)) {
-      return "Hoi Gaby! 😊 Wat wil je weten over de pot?";
+    if (/^(hallo|hoi|hey|hee|hi|goedemorgen|goedemiddag|goedenavond|dag|hee)\b/.test(t)) {
+      return "Hoi! 😊 Wat wil je weten over de pot?";
     }
 
     // Wat kun je?
     if (/wat kan|wat weet|help|hoe werk|wat doe/.test(t)) {
-      return "Ik kan je het volgende vertellen:\n\n• Hoeveel er in de familiepot of kinderpot zit\n• Wie er nog niet heeft betaald\n• Wanneer de volgende verjaardag-uitbetaling is\n• Wat er al is uitbetaald dit jaar\n• Waarom de pot tijdelijk in het rood staat\n• Hoeveel iedereen per maand betaalt\n\nStel gewoon je vraag! 💬";
+      return "Ik kan je het volgende vertellen:\n\n• Hoeveel er in de kinderpot of familiepot zit\n• Wie er nog niet heeft betaald\n• Wanneer de volgende verjaardag-uitbetaling is\n• Wat er al is uitbetaald dit jaar\n• De volledige berekening van het jaar\n• Waarom de pot tijdelijk in het rood staat\n• Hoeveel iedereen per maand betaalt\n\nStel gewoon je vraag! 💬";
+    }
+
+    // Volledig jaaroverzicht / berekening / hoe zit het
+    if (/berekening|overzicht|jaar.*stand|stand.*jaar|begin.*jaar|jaar.*begin|hoe.*zit|hoe staat|totaal.*jaar|jaar.*totaal|alles.*op.*rij|klopt.*dit|klopt het|wat.*gebeurd|leg.*uit/.test(t)) {
+      const k = kidSaldo(cy, cm);
+      const f = famSaldo(cy, cm);
+      let antw = `📊 Volledig overzicht ${cy} (t/m ${monthNames[cm]}):\n\n`;
+      antw += `💜 KINDERPOT\n`;
+      antw += `📥 Ingelegd: ${euro(k.ingelegd)}`;
+      if (k.stortTot > 0) antw += ` + ${euro(k.stortTot)} extra`;
+      antw += `\n💸 Uitbetaald: ${euro(k.uitbetaald)}`;
+      if (k.uitbLijst.length) antw += `\n   (${k.uitbLijst.map(u => `${u.naam} ${euro(u.bedrag)}`).join(", ")})`;
+      antw += `\n💰 Saldo: ${euro(k.netto)}`;
+      if (k.netto < 0) antw += ` ⚠️`;
+      antw += `\n\n💙 FAMILIEPOT\n`;
+      antw += `📥 Ingelegd: ${euro(f.ingelegd)}\n`;
+      antw += f.open.length ? `⏳ Nog open (${monthNames[cm]}): ${f.open.join(", ")}` : `✅ Iedereen betaald t/m ${monthNames[cm]}`;
+      if (k.netto < 0) {
+        antw += `\n\n💡 De kinderpot staat tijdelijk in het rood omdat er twee verjaardagen vlak na elkaar zijn uitbetaald. Dat trekt bij zodra de komende maanden binnenkomen!`;
+      }
+      return antw;
     }
 
     // Kinderpot saldo
-    if (/kinderpot|kinder pot/.test(t) || (/hoeveel|saldo|stand|in de pot|pot.*staan|staan.*pot/.test(t) && !/familiepot|familie pot/.test(t))) {
-      let kidPaid = 0;
-      families.forEach(f => {
-        for (let mm = 1; mm <= cm; mm++) {
-          const e2 = appState.entries[key("kinder", cy, mm, f.name)] || {};
-          if (e2.status === "Betaald") kidPaid += minFor("kinder", f.name, appState.mins);
-        }
-      });
-      const pyObj = appState.payouts || {};
-      let totalUitb = 0, uitbLijst = [];
-      for (const [k, v] of Object.entries(pyObj)) {
-        if (k.startsWith(String(cy) + "|")) {
-          totalUitb += (v.amount || 0);
-          uitbLijst.push(`🎂 ${k.split("|")[1]}: ${euro(v.amount)} (${v.date})`);
-        }
-      }
-      const stortTot = (appState.stortingen || []).reduce((som, st) => {
-        if (st.pot !== "kinder") return som;
-        const parts = (st.date || "").split("-");
-        const stJr = parseInt(parts.find(p2 => p2.length === 4) || "0", 10);
-        return stJr === cy ? som + (Number(st.amount) || 0) : som;
-      }, 0);
-      const net = kidPaid + stortTot - totalUitb;
-      let antw = `💜 Kinderpot – stand ${monthNames[cm]} ${cy}:\n\n📥 Ingelegd t/m nu: ${euro(kidPaid + stortTot)}\n💸 Uitbetaald: ${euro(totalUitb)}\n💰 Beschikbaar: ${euro(net)}`;
-      if (uitbLijst.length) antw += "\n\nUitbetalingen:\n" + uitbLijst.join("\n");
-      if (net < 0) antw += `\n\n⚠️ De pot staat tijdelijk in het rood. Dat klopt! Er zijn twee verjaardagen uitbetaald vlak na elkaar. Zodra iedereen de komende maand(en) betaalt, wordt de pot weer positief. Geen zorgen! 😊`;
+    if (/kinderpot|kinder pot/.test(t) || (/hoeveel|saldo|stand|in de pot|pot.*staan|staan.*pot/.test(t) && !/familiepot|familie pot|familie/.test(t))) {
+      const k = kidSaldo(cy, cm);
+      let antw = `💜 Kinderpot – stand ${monthNames[cm]} ${cy}:\n\n📥 Ingelegd t/m nu: ${euro(k.ingelegd + k.stortTot)}\n💸 Uitbetaald: ${euro(k.uitbetaald)}\n💰 Beschikbaar: ${euro(k.netto)}`;
+      if (k.uitbLijst.length) antw += "\n\nUitbetalingen:\n" + k.uitbLijst.map(u => `🎂 ${u.naam}: ${euro(u.bedrag)} (${u.datum})`).join("\n");
+      if (k.netto < 0) antw += `\n\n⚠️ Tijdelijk in het rood door twee verjaardagen vlak na elkaar. Geen zorgen, trekt bij! 😊`;
       return antw;
     }
 
     // Familiepot saldo
     if (/familiepot|familie pot|familie/.test(t)) {
-      let famPaid = 0;
-      families.forEach(f => {
-        for (let mm = 1; mm <= cm; mm++) {
-          const e2 = appState.entries[key("familie", cy, mm, f.name)] || {};
-          if (e2.status === "Betaald") famPaid += minFor("familie", f.name, appState.mins);
-        }
-      });
-      let famOpen = [];
-      families.forEach(f => {
-        if ((appState.entries[key("familie", cy, cm, f.name)] || {}).status !== "Betaald") famOpen.push(f.name);
-      });
-      let antw = `💙 Familiepot – stand ${monthNames[cm]} ${cy}:\n\n📥 Ingelegd t/m nu: ${euro(famPaid)}`;
-      antw += famOpen.length ? `\n⏳ Nog niet betaald (${monthNames[cm]}):\n${famOpen.map(n => "• " + n).join("\n")}` : `\n✅ Iedereen heeft ${monthNames[cm]} betaald!`;
+      const f = famSaldo(cy, cm);
+      let antw = `💙 Familiepot – stand ${monthNames[cm]} ${cy}:\n\n📥 Ingelegd t/m nu: ${euro(f.ingelegd)}`;
+      antw += f.open.length ? `\n⏳ Nog niet betaald (${monthNames[cm]}):\n${f.open.map(n => "• " + n).join("\n")}` : `\n✅ Iedereen heeft ${monthNames[cm]} betaald!`;
       return antw;
     }
 
     // Wie heeft niet betaald?
-    if (/wie.*niet|niet.*betaald|openstaand|open.*maand|nog.*betalen|achter/.test(t)) {
+    if (/wie.*niet|niet.*betaald|openstaand|open.*maand|nog.*betalen|achter|wie.*open/.test(t)) {
       let famOpen = [], kidOpen = [];
       families.forEach(f => {
         if ((appState.entries[key("familie", cy, cm, f.name)] || {}).status !== "Betaald") famOpen.push(f.name);
@@ -1374,7 +1432,7 @@ startGate.style.display = "flex";
     }
 
     // Wanneer volgende verjaardag?
-    if (/verjaardag|jarig|volgende|eerstvolgende|wanneer.*uitbetal/.test(t)) {
+    if (/verjaardag|jarig|volgende|eerstvolgende|wanneer.*uitbetal|kinderen/.test(t)) {
       const todayMs = new Date(cy, now.getMonth(), now.getDate()).getTime();
       const pyObj = appState.payouts || {};
       const upcoming = KIDS
@@ -1397,50 +1455,44 @@ startGate.style.display = "flex";
     }
 
     // Uitbetaald dit jaar?
-    if (/uitbetaald|wat.*uitbetaal|overzicht.*uitbet/.test(t)) {
-      const pyObj = appState.payouts || {};
-      const items = Object.entries(pyObj).filter(([k]) => k.startsWith(String(cy) + "|"));
-      if (!items.length) return `Er is nog niets uitbetaald in ${cy}.`;
-      const lijst = items.map(([k, v]) => `🎂 ${k.split("|")[1]}: ${euro(v.amount)} op ${v.date}`).join("\n");
-      const totaal = items.reduce((s, [, v]) => s + (v.amount || 0), 0);
-      return `💸 Uitbetalingen ${cy}:\n\n${lijst}\n\n📊 Totaal uitbetaald: ${euro(totaal)}`;
+    if (/uitbetaald|wat.*uitbetaal|al.*betaald|betaald.*kind/.test(t)) {
+      const k = kidSaldo(cy, cm);
+      if (!k.uitbLijst.length) return `Er is nog niets uitbetaald in ${cy}.`;
+      const lijst = k.uitbLijst.map(u => `🎂 ${u.naam}: ${euro(u.bedrag)} op ${u.datum}`).join("\n");
+      return `💸 Uitbetalingen ${cy}:\n\n${lijst}\n\n📊 Totaal uitbetaald: ${euro(k.uitbetaald)}`;
     }
 
     // Waarom negatief?
-    if (/negatief|minus|in.*min|rood|verlies|tekort|waarom.*min|hoe kan|snap.*niet/.test(t)) {
-      let kidPaid = 0;
-      families.forEach(f => {
-        for (let mm = 1; mm <= cm; mm++) {
-          const e2 = appState.entries[key("kinder", cy, mm, f.name)] || {};
-          if (e2.status === "Betaald") kidPaid += minFor("kinder", f.name, appState.mins);
-        }
-      });
-      const pyObj = appState.payouts || {};
-      let totalUitb = 0;
-      for (const [k, v] of Object.entries(pyObj)) {
-        if (k.startsWith(String(cy) + "|")) totalUitb += (v.amount || 0);
-      }
-      const net = kidPaid - totalUitb;
-      return `Dat is heel normaal, Gaby! Geen paniek 😊\n\nHier is wat er is gebeurd:\n📥 Ingelegd t/m ${monthNames[cm]}: ${euro(kidPaid)}\n💸 Uitbetaald: ${euro(totalUitb)}\n💰 Saldo: ${euro(net)}\n\nEr zijn twee verjaardagen vlak na elkaar geweest (Naleya en Shira). Samen is dat €480. De pot haalt dat in zodra iedereen de komende maanden bijdraagt. Dit hoort gewoon zo! ✅`;
+    if (/negatief|minus|in.*min|rood|verlies|tekort|waarom.*min|hoe kan|snap.*niet|klopt.*niet/.test(t)) {
+      const k = kidSaldo(cy, cm);
+      return `Dat is heel normaal, geen paniek! 😊\n\nHier is wat er is gebeurd:\n📥 Ingelegd t/m ${monthNames[cm]}: ${euro(k.ingelegd + k.stortTot)}\n💸 Uitbetaald: ${euro(k.uitbetaald)}\n💰 Saldo: ${euro(k.netto)}\n\nEr zijn twee verjaardagen vlak na elkaar geweest (Naleya en Shira). Samen €480. De pot haalt dat in zodra iedereen de komende maanden bijdraagt. Dit hoort zo! ✅`;
     }
 
     // Bedragen per maand?
-    if (/hoeveel.*betalen|bijdrage|bedrag|per maand/.test(t)) {
+    if (/hoeveel.*betalen|bijdrage|bedrag|per maand|maandelijks/.test(t)) {
       return `💰 Maandelijkse bijdragen:\n\n💙 Familiepot:\n• Koppels: ${euro(appState.mins.fam)}/maand\n• Anisa (solo): ${euro(appState.mins.ani)}/maand\n\n💜 Kinderpot:\n• Ieder gezin: ${euro(appState.mins.kid)}/maand\n\nUitbetaling per kind per jaar: €240\n(8 gezinnen × €15 × 12 mnd ÷ 6 kids)`;
     }
 
     // Wie doen er mee?
-    if (/wie.*meedoen|hoeveel.*gezin|hoeveel.*famili|wie zijn er|wie.*lid/.test(t)) {
+    if (/wie.*meedoen|hoeveel.*gezin|hoeveel.*famili|wie zijn er|wie.*lid|wie.*deelnem/.test(t)) {
       return `Er doen 8 gezinnen mee:\n\n${families.map(f => "• " + f.name + (f.kids !== "—" ? ` (kids: ${f.kids})` : "")).join("\n")}`;
     }
 
     // Doorlinken naar Moek
-    if (/moek|bellen|appen|contact|weet.*niet|snapt.*niet|begrijp.*niet/.test(t)) {
-      return `Geen probleem! Stuur Moek even een appje, hij legt het uit:\n\n👉 <a href="${MOEK_WA}" target="_blank" style="color:#e879f9;font-weight:800;">App Moek op WhatsApp</a>\n\nOf bel: <a href="tel:+31653694678" style="color:#e879f9;font-weight:800;">06-53694678</a>`;
+    if (/moek|bellen|appen|contact/.test(t)) {
+      return `Stuur Moek even een appje:\n\n👉 <a href="${MOEK_WA}" target="_blank" style="color:#e879f9;font-weight:800;">App Moek op WhatsApp</a>\n\nOf bel: <a href="tel:+31653694678" style="color:#e879f9;font-weight:800;">06-53694678</a>`;
     }
 
-    // Fallback
-    return `Hmm, dat snap ik even niet helemaal. 😅\n\nProbeer het zo:\n• "Hoeveel zit er in de kinderpot?"\n• "Wie heeft er nog niet betaald?"\n• "Wanneer is de volgende verjaardag?"\n• "Waarom is de pot min?"\n• "Wat is er uitbetaald?"\n\nOf neem contact op:\n👉 <a href="${MOEK_WA}" target="_blank" style="color:#e879f9;font-weight:800;">App Moek</a>`;
+    // Slimme fallback: geef altijd een overzicht + snelknoppen
+    const k = kidSaldo(cy, cm);
+    const f = famSaldo(cy, cm);
+    setTimeout(() => addSuggestions([
+      "Hoe staat de kinderpot?",
+      "Hoe staat de familiepot?",
+      "Wie heeft nog niet betaald?",
+      "Geef me een overzicht van het jaar"
+    ]), 50);
+    return `Ik snap de vraag even niet helemaal 😅, maar hier is de huidige stand:\n\n💜 Kinderpot: ${euro(k.netto)}\n💙 Familiepot: ${euro(f.ingelegd)} ingelegd\n\nKies hieronder of tik Moek aan:`;
   }
 })();
 </script>
