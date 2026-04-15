@@ -151,6 +151,10 @@ button:active { transform: scale(0.96); }
 
 /* Uitbetaling sheet */
 .uitbPanel { background: linear-gradient(180deg, #2e1065, #1a0a30) !important; }
+/* Gaby avatar */
+.gabyAvatar { width:82px; height:82px; border-radius:50%; object-fit:cover; border:3px solid rgba(232,121,249,0.5); box-shadow:0 0 20px rgba(232,121,249,0.25); display:block; margin:0 auto 8px; }
+/* Extra storting sheet */
+.stortPanel { background: linear-gradient(180deg, #0c1e3b, #020e20) !important; }
 
 /* Verjaardag alert op homepage */
 .bdayAlertCard { display:flex; align-items:center; gap:14px; padding:16px 18px; background:rgba(217,70,239,0.12); border:1px solid rgba(232,121,249,0.5); border-radius:16px; cursor:pointer; margin-bottom:10px; transition:transform 0.15s, box-shadow 0.2s; -webkit-tap-highlight-color:transparent; }
@@ -182,6 +186,7 @@ button:active { transform: scale(0.96); }
 <!-- HOMEPAGE -->
 <div class="startGate" id="startGate" aria-modal="true" role="dialog" style="display:none;">
   <div class="startBox">
+    <img src="gaby.png" class="gabyAvatar" alt="Gaby" onerror="this.style.display='none'">
     <div class="startTitle">Welkom Gaby 💐</div>
     <p class="startSub">Kies welke pot je wilt beheren</p>
 
@@ -289,7 +294,38 @@ button:active { transform: scale(0.96); }
       <button class="bTile" data-open="openSheet"><div class="btIcon">🔴</div><div class="btText"><div class="btT">Niet betaald</div><div class="btS">Openstaande gezinnen</div></div><span class="btBadge" id="openCountBadge" style="background:red;border-radius:50%;padding:2px 6px;font-size:12px;display:none;">0</span></button>
       <button class="bTile" data-open="whatsSheet"><div class="btIcon">💬</div><div class="btText"><div class="btT">WhatsApp</div><div class="btS">Herinnering / bedankje</div></div></button>
       <button class="bTile" data-open="overSheet"><div class="btIcon">📊</div><div class="btText"><div class="btT">Overzicht</div><div class="btS">Stand delen / PDF</div></div></button>
+      <button class="bTile" id="stortingTile" onclick="openStorting()" style="display:none"><div class="btIcon">💰</div><div class="btText"><div class="btT">Extra storting</div><div class="btS">Handmatige bijboeking</div></div></button>
       <button class="bTile" data-open="settingsSheet"><div class="btIcon">⚙️</div><div class="btText"><div class="btT">Instellingen</div><div class="btS">Bedragen • Links</div></div></button>
+    </div>
+  </div>
+</div>
+
+<!-- Extra storting sheet -->
+<div class="sheet" id="stortingSheet">
+  <div class="panel stortPanel">
+    <div class="panelHeader" style="background:linear-gradient(180deg,#1e3a5f,#0c1e3b);border-top-left-radius:20px;border-top-right-radius:20px;">
+      <button class="closeX" data-close="stortingSheet">✕</button>
+      <h3 style="margin:0;color:#38bdf8;">💰 Extra storting</h3>
+      <div style="width:32px;"></div>
+    </div>
+    <div class="panelContent">
+      <p style="font-size:13px;color:var(--text-muted);margin:0 0 16px;">Gebruik dit als er geld is bijgestort dat niet via de vaste maandbijdrage loopt — bijv. een correctie of een eenmalige extra bijdrage.</p>
+      <div class="inputGroup"><label>Pot</label>
+        <select id="stortPot" style="width:100%;background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.15);color:#fff;padding:12px;border-radius:10px;font-size:15px;">
+          <option value="kinder">Kinderpot</option>
+          <option value="familie">Familiepot</option>
+        </select>
+      </div>
+      <div class="inputGroup"><label>Bedrag (€)</label>
+        <input type="number" step="0.01" id="stortBedrag" placeholder="0,00" style="width:100%;background:rgba(0,0,0,0.4);border:1px solid rgba(56,189,248,0.4);color:#38bdf8;padding:12px;border-radius:10px;font-size:28px;font-weight:900;text-align:center;">
+      </div>
+      <div class="inputGroup"><label>Omschrijving</label>
+        <input type="text" id="stortOmschrijving" placeholder="bijv. correctie januari, fout hersteld..." style="width:100%;background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.15);color:#fff;padding:12px;border-radius:10px;font-size:14px;">
+      </div>
+      <div class="inputGroup"><label>Datum</label>
+        <input type="text" id="stortDatum" style="width:100%;background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.15);color:#fff;padding:12px;border-radius:10px;font-size:14px;">
+      </div>
+      <button id="stortOpslaan" class="btn" style="background:linear-gradient(135deg,#0ea5e9,#0284c7);font-size:16px;padding:14px;">💾 Storting opslaan</button>
     </div>
   </div>
 </div>
@@ -361,7 +397,9 @@ button:active { transform: scale(0.96); }
     <div class="panelContent">
       <div class="kids" id="overContext" style="margin-bottom:10px;color:var(--text-muted)"></div>
       <div class="cards" style="grid-template-columns:1fr;gap:10px;margin-top:10px">
-        <div class="card"><div class="left"><b>💰 In pot (t/m maand)</b></div><div class="right"><div class="amt" id="ovIn">€ 0,00</div></div></div>
+        <div class="card"><div class="left"><b id="ovInLbl">💰 In pot (t/m maand)</b></div><div class="right"><div class="amt" id="ovIn">€ 0,00</div></div></div>
+        <div class="card" id="ovUitbCard" style="display:none;cursor:pointer;" onclick="toggleOvUitbDetails()"><div class="left"><b>💸 Uitbetaald (dit jaar)</b><div style="font-size:11px;color:var(--text-muted);margin-top:2px;">Tik voor details ›</div></div><div class="right"><div class="amt" id="ovUitb">€ 0,00</div></div></div>
+        <div id="ovUitbDetails" style="display:none;background:rgba(0,0,0,0.2);border:1px solid rgba(232,121,249,0.2);border-radius:12px;padding:10px 14px;margin-top:-6px;"></div>
         <div class="card"><div class="left"><b>⏳ Totaal open (t/m maand)</b></div><div class="right"><div class="amt" id="ovOpen">€ 0,00</div></div></div>
         <div class="card"><div class="left"><b>✅ Betaald / Open (mnd)</b></div><div class="right"><div class="amt" id="ovCount">0/8</div><div class="kids" id="ovCount2">open: 0</div></div></div>
       </div>
@@ -509,6 +547,25 @@ onValue(dbRef, (snapshot) => {
     if (!appState.mins) appState.mins = { fam: 32.0, ani: 16.0, kid: 15.0, kidPayout: DEFAULT_KID_PAYOUT };
     if (!appState.mins.kidPayout) appState.mins.kidPayout = DEFAULT_KID_PAYOUT;
     if (!appState.payouts) appState.payouts = {};
+    if (!appState.stortingen) appState.stortingen = [];
+    // Migreer oude uitbetalingen-array (vorige versie) naar nieuw payouts-object
+    const uitbMigArr = appState.uitbetalingen || [];
+    if (uitbMigArr.length > 0) {
+      let migrated = false;
+      uitbMigArr.forEach(u => {
+        if (u.pot !== "familie") {
+          const datum = u.datum || u.date || "";
+          const parts = datum.split("-");
+          const yr = parts.find(p => p.length === 4) ? parseInt(parts.find(p => p.length === 4), 10) : new Date().getFullYear();
+          const pKey = yr + "|" + (u.naam || u.name || "");
+          if (pKey !== yr + "|" && !appState.payouts[pKey]) {
+            appState.payouts[pKey] = { amount: Number(u.bedrag || u.amount || 0), date: datum };
+            migrated = true;
+          }
+        }
+      });
+      if (migrated) { delete appState.uitbetalingen; saveCloud(); }
+    }
   }
   // Zet standaardbericht als prikbord leeg is
   if (!appState.memo) {
@@ -561,7 +618,7 @@ window.render = function() {
     return `<div class="card"><div class="left"><b>${f.name}</b><div class="kids">Kids: ${f.kids}</div></div><div class="right"><div class="amt">${euro(min)}</div><div class="pill ${e.status==="Betaald"?"ok":"bad"}">${e.status==="Betaald"?"✅ betaald":"❌ open"}</div></div></div>`;
   }).join("");
 
-  // === KINDERPOT: netto saldo berekenen (ingelegd minus uitbetaald) ===
+  // === KINDERPOT: netto saldo berekenen (ingelegd + stortingen - uitbetaald) ===
   const tileUitb = q("tileUitb");
   if (p === "kinder") {
     const payoutsObj = s.payouts || {};
@@ -569,7 +626,15 @@ window.render = function() {
     for (const [k, v] of Object.entries(payoutsObj)) {
       if (k.startsWith(String(y) + "|")) totalPaidOut += (v.amount || 0);
     }
-    const netBal = paidTo - totalPaidOut;
+    // Tel extra stortingen mee
+    const stortArr = s.stortingen || [];
+    const stortTotaal = stortArr.reduce((sum, st) => {
+      if (st.pot !== "kinder") return sum;
+      const parts = (st.date || "").split("-");
+      const stJr = parseInt(parts.find(p2 => p2.length === 4) || "0", 10);
+      return stJr === y ? sum + (Number(st.amount) || 0) : sum;
+    }, 0);
+    const netBal = paidTo + stortTotaal - totalPaidOut;
     t_in.textContent = euro(netBal);
     q("t_in_lbl").textContent = "💰 Beschikbaar (netto)";
     if (tileUitb) { tileUitb.style.display = "flex"; q("t_uitb").textContent = euro(totalPaidOut); }
@@ -632,15 +697,19 @@ window.render = function() {
   for (const [k2, v2] of Object.entries(pyObj2)) {
     if (k2.startsWith(String(cy) + "|")) { totalPaidOutHome += (v2.amount || 0); pyThisYear++; }
   }
-  const kidNet = kidPaid - totalPaidOutHome;
+  // Stortingen meenemen in homepage saldo
+  const stortHome = (s.stortingen || []).reduce((sum, st) => {
+    if (st.pot !== "kinder") return sum;
+    const parts = (st.date || "").split("-");
+    const stJr = parseInt(parts.find(p2 => p2.length === 4) || "0", 10);
+    return stJr === cy ? sum + (Number(st.amount) || 0) : sum;
+  }, 0);
+  const kidNet = kidPaid + stortHome - totalPaidOutHome;
   let kidPaidCnt = families.filter(f => (s.entries[key("kinder", cy, cm, f.name)] || {}).status === "Betaald").length;
 
-  const hbfEl = q("homeBalFam"), hbkEl = q("homeBalKid");
   const hsfEl = q("homeStatFam"), hskEl = q("homeStatKid");
-  if (hbfEl) hbfEl.textContent = euro(famPaid);
-  if (hbkEl) hbkEl.textContent = euro(kidNet);
   if (hsfEl) hsfEl.textContent = monthNames[cm] + " · " + famPaidCnt + "/8 betaald";
-  if (hskEl) hskEl.textContent = monthNames[cm] + " · " + kidPaidCnt + "/8 betaald · " + pyThisYear + "/6 uitbetaald";
+  if (hskEl) hskEl.textContent = euro(kidNet) + " · " + kidPaidCnt + "/8 · " + pyThisYear + "/6 uitbetaald";
 
 };
 
@@ -651,6 +720,69 @@ q("saveMemo").onclick = () => {
   const btn = q("saveMemo");
   btn.textContent = "✔ Opgeslagen!";
   setTimeout(() => btn.textContent = "💾 Opslaan", 2000);
+};
+
+// === Extra storting ===
+function todayDDMMYYYY() {
+  const d = new Date();
+  return String(d.getDate()).padStart(2,"0") + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + d.getFullYear();
+}
+
+window.openStorting = function() {
+  q("beheerSheet").classList.remove("show");
+  q("stortPot").value = pot.value;
+  q("stortBedrag").value = "";
+  q("stortOmschrijving").value = "";
+  q("stortDatum").value = todayDDMMYYYY();
+  q("stortingSheet").classList.add("show");
+};
+
+q("stortOpslaan").onclick = function() {
+  const amount = parseFloat(q("stortBedrag").value);
+  if (!amount || amount === 0) { alert("Voer een geldig bedrag in."); return; }
+  const entry = {
+    pot: q("stortPot").value,
+    amount,
+    date: q("stortDatum").value || todayDDMMYYYY(),
+    omschrijving: q("stortOmschrijving").value.trim() || "Extra storting"
+  };
+  if (!appState.stortingen) appState.stortingen = [];
+  appState.stortingen.push(entry);
+  saveCloud();
+  render();
+  q("stortingSheet").classList.remove("show");
+  const toast = document.createElement("div");
+  toast.style.cssText = "position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#0ea5e9;color:#fff;padding:14px 28px;border-radius:16px;font-weight:800;z-index:9999;font-size:15px;box-shadow:0 4px 24px rgba(0,0,0,0.5);pointer-events:none;";
+  toast.textContent = "💰 Storting van " + euro(amount) + " opgeslagen!";
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 3000);
+};
+
+// Toon/verberg "Extra storting" knop op basis van pot
+function syncStortingTile() {
+  const tile = q("stortingTile");
+  if (tile) tile.style.display = pot.value === "kinder" ? "" : "none";
+}
+document.addEventListener("change", e => { if (e.target && e.target.id === "pot") syncStortingTile(); });
+window.addEventListener("load", syncStortingTile);
+
+// === Uitbetaald detail in overzicht ===
+window.toggleOvUitbDetails = function() {
+  const det = q("ovUitbDetails");
+  if (!det) return;
+  if (det.style.display !== "none") { det.style.display = "none"; return; }
+  const s = appState, y = +year.value;
+  const payoutsObj = s.payouts || {};
+  const items = Object.entries(payoutsObj)
+    .filter(([k]) => k.startsWith(String(y) + "|"))
+    .map(([k, v]) => {
+      const child = k.split("|")[1];
+      return `<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.07);font-size:13px;">
+        <span>🎂 ${child}</span><span style="color:#e879f9;font-weight:800;">${euro(v.amount)}</span><span style="color:var(--text-muted)">${v.date}</span>
+      </div>`;
+    });
+  det.innerHTML = items.length ? items.join("") : `<div style="font-size:13px;color:var(--text-muted)">Nog geen uitbetalingen geregistreerd.</div>`;
+  det.style.display = "block";
 };
 
 // === Uitbetaling kinderpot ===
@@ -897,7 +1029,7 @@ q("downloadIcsBtn").onclick = function() {
 
 function openOver() {
   const s = appState, p = pot.value, y = +year.value, m = +month.value;
-  q("overContext").textContent = `${p} – t/m ${monthNames[m]} ${y}`;
+  q("overContext").textContent = `${p === "familie" ? "Familiepot" : "Kinderpot"} – t/m ${monthNames[m]} ${y}`;
   let paidTo = 0, openTo = 0, paidCnt = 0, openCnt = 0;
   families.forEach(f => {
     if ((s.entries[key(p, y, m, f.name)] || {}).status === "Betaald") paidCnt++; else openCnt++;
@@ -906,7 +1038,28 @@ function openOver() {
       if ((s.entries[key(p, y, mm, f.name)] || {}).status === "Betaald") paidTo += amt; else openTo += amt;
     }
   });
-  q("ovIn").textContent = euro(paidTo);
+  if (p === "kinder") {
+    const pyObj = s.payouts || {};
+    let totalUitb = 0;
+    for (const [k, v] of Object.entries(pyObj)) {
+      if (k.startsWith(String(y) + "|")) totalUitb += (v.amount || 0);
+    }
+    const stortOv = (s.stortingen || []).reduce((sum, st) => {
+      if (st.pot !== "kinder") return sum;
+      const parts = (st.date || "").split("-");
+      const stJr = parseInt(parts.find(p2 => p2.length === 4) || "0", 10);
+      return stJr === y ? sum + (Number(st.amount) || 0) : sum;
+    }, 0);
+    q("ovInLbl").textContent = "💰 Beschikbaar (netto)";
+    q("ovIn").textContent = euro(paidTo + stortOv - totalUitb);
+    q("ovUitbCard").style.display = "";
+    q("ovUitb").textContent = euro(totalUitb);
+    if (q("ovUitbDetails")) q("ovUitbDetails").style.display = "none";
+  } else {
+    q("ovInLbl").textContent = "💰 In pot (t/m maand)";
+    q("ovIn").textContent = euro(paidTo);
+    q("ovUitbCard").style.display = "none";
+  }
   q("ovOpen").textContent = euro(openTo);
   q("ovCount").textContent = `${paidCnt}/8`;
   q("ovCount2").textContent = `open: ${openCnt}`;
