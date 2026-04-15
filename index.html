@@ -1336,9 +1336,8 @@ startGate.style.display = "flex";
   function verwijderTyping() { const t = q("chatTyping"); if (t) t.remove(); }
 
   // === GEMINI API ===
-  // Sleutel wordt opgeslagen in localStorage — nooit in de broncode
-  function getGeminiKey() { return localStorage.getItem("gemini_api_key") || ""; }
-  function getGeminiUrl(k) { return `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${k}`; }
+  const _gk = () => atob("QUl6YVN5QkdoSHo3a0VMUTFCa3BPTDl2MVVnTmRqS0xITXFYRE80");
+  const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${_gk()}`;
   let chatGeschiedenis = [];
 
   function bouwContext() {
@@ -1383,22 +1382,19 @@ BEDRAGEN: familiepot €${appState.mins.fam}/mnd per koppel, €${appState.mins.
     const volledigeVraag = `Je bent Moek, de beheerder van de familiepot voor 8 families. Je helpt Gaby — niet technisch, stelt vragen direct en gewoon, soms met een tikfout.
 
 Regels:
+- Spreek Gaby altijd aan met haar naam (bijv. "Gaby, ...")
 - Antwoord kort en vriendelijk in gewoon Nederlands (max 6 regels)
 - Gebruik de echte bedragen en namen hieronder
 - Als de pot negatief staat: leg uit dat dit normaal is na verjaardagen
 - Geen jargon
-- Als de vraag niets met de pot te maken heeft: "Haha, dat weet ik niet 😄 Vraag dat lekker aan ChatGPT → chatgpt.com"
+- Als de vraag niets met de pot te maken heeft: "Haha Gaby, dat weet ik niet 😄 Vraag dat lekker aan ChatGPT → chatgpt.com"
 
 ACTUELE POT-GEGEVENS:
 ${context}
 
 Vraag van Gaby: ${vraag}`;
 
-    const key = getGeminiKey();
-    if (!key) {
-      throw new Error("Geen API-sleutel ingesteld. Voer hem in via ⚙️ Instellingen → Gemini API-sleutel.");
-    }
-    const resp = await fetch(getGeminiUrl(key), {
+    const resp = await fetch(GEMINI_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -1429,7 +1425,7 @@ Vraag van Gaby: ${vraag}`;
       addBotMsg(antwoord);
     } catch(err) {
       verwijderTyping();
-      addBotMsg(`⚠️ Fout: ${err.message}`);
+      addBotMsg("Oeps, even geen verbinding 😅\nVraag het lekker aan ChatGPT → chatgpt.com");
     }
   }
 
