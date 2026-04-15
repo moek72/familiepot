@@ -1299,11 +1299,18 @@ startGate.style.display = "flex";
       const btn = document.createElement("button");
       btn.className = "chatChip";
       btn.textContent = opt;
-      btn.onclick = () => {
+      btn.onclick = async () => {
         wrap.remove();
         addUserMsg(opt);
         toonTyping();
-        setTimeout(() => { verwijderTyping(); addBotMsg(berekenAntwoord(opt)); }, 600);
+        try {
+          const antwoord = await vraagGemini(opt);
+          verwijderTyping();
+          addBotMsg(antwoord);
+        } catch(e) {
+          verwijderTyping();
+          addBotMsg(berekenAntwoord(opt));
+        }
       };
       wrap.appendChild(btn);
     });
@@ -1328,16 +1335,95 @@ startGate.style.display = "flex";
   }
   function verwijderTyping() { const t = q("chatTyping"); if (t) t.remove(); }
 
-  function verstuur() {
+  // === GEMINI API ===
+  const GEMINI_KEY = "AIzaSyBepV6OHYgu4-uigxZdn52V0jywww93oK8";
+  const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`;
+  let chatGeschiedenis = [];
+
+  function bouwContext() {
+    const now = new Date(), cy = now.getFullYear(), cm = now.getMonth() + 1;
+    const k = kidSaldo(cy, cm);
+    const f = famSaldo(cy, cm);
+    let famBetaald = families.filter(fam => (appState.entries[key("familie", cy, cm, fam.name)] || {}).status === "Betaald").map(fam => fam.name);
+    let kidBetaald = families.filter(fam => (appState.entries[key("kinder", cy, cm, fam.name)] || {}).status === "Betaald").map(fam => fam.name);
+    const todayMs = new Date(cy, now.getMonth(), now.getDate()).getTime();
+    const pyObj = appState.payouts || {};
+    const komend = KIDS.map(c => {
+      const [dd, mm2] = c.bday.split("-").map(Number);
+      let bdayMs = new Date(cy, mm2 - 1, dd).getTime();
+      if (bdayMs < todayMs) bdayMs = new Date(cy + 1, mm2 - 1, dd).getTime();
+      return { naam: c.name, bday: c.bday, diff: Math.round((bdayMs - todayMs) / 86400000), betaald: !!pyObj[cy + "|" + c.name] };
+    }).sort((a, b) => a.diff - b.diff);
+
+    return `DATUM: ${now.toLocaleDateString('nl-NL', {day:'numeric', month:'long', year:'numeric'})}
+
+KINDERPOT ${cy}:
+- Ingelegd t/m ${monthNames[cm]}: €${(k.ingelegd + k.stortTot).toFixed(2)}
+- Uitbetaald: €${k.uitbetaald.toFixed(2)}
+- Netto beschikbaar: €${k.netto.toFixed(2)}${k.netto < 0 ? " (tijdelijk negatief — normaal na verjaardagen)" : ""}
+- Uitbetalingen: ${k.uitbLijst.length ? k.uitbLijst.map(u => `${u.naam} €${u.bedrag} op ${u.datum}`).join(', ') : 'nog geen'}
+- Betaald ${monthNames[cm]}: ${kidBetaald.length}/8 (${kidBetaald.join(', ') || 'niemand nog'})
+- Niet betaald ${monthNames[cm]}: ${f.open.join(', ') || 'iedereen betaald ✓'}
+
+FAMILIEPOT ${cy}:
+- Ingelegd t/m ${monthNames[cm]}: €${f.ingelegd.toFixed(2)}
+- Betaald ${monthNames[cm]}: ${famBetaald.length}/8 (${famBetaald.join(', ') || 'niemand nog'})
+- Niet betaald: ${f.open.join(', ') || 'iedereen betaald ✓'}
+
+VERJAARDAGEN:
+${komend.map(c => `- ${c.naam} (${c.bday}): ${c.betaald ? 'uitbetaald ✓' : 'over ' + c.diff + ' dagen'}`).join('\n')}
+
+8 GEZINNEN: ${families.map(f => f.name).join(', ')}
+BEDRAGEN: familiepot €${appState.mins.fam}/mnd per koppel, €${appState.mins.ani}/mnd Anisa, kinderpot €${appState.mins.kid}/mnd, uitbetaling per kind €${appState.mins.kidPayout || 240}/jaar`;
+  }
+
+  async function vraagGemini(vraag) {
+    const systeemPrompt = `Je bent Moek, de broer/vriend die de familiepot beheert voor 8 families. Je helpt Gaby — ze is de financieel beheerder maar niet technisch. Ze stelt vragen heel direct en gewoon, soms met een tikfout of in losse woorden.
+
+Regels:
+- Antwoord in kort, vriendelijk en gewoon Nederlands (max 6 regels)
+- Gebruik de echte bedragen en namen uit de pot-gegevens hieronder
+- Als de pot negatief staat: leg rustig uit dat dit normaal is na verjaardagen
+- Geen technisch jargon, geen opsommingstekens tenzij het echt duidelijker wordt
+- Sluit soms af met een kort bemoedigend zinnetje
+
+ACTUELE POT-GEGEVENS:
+${bouwContext()}`;
+
+    chatGeschiedenis.push({ role: "user", parts: [{ text: vraag }] });
+    if (chatGeschiedenis.length > 20) chatGeschiedenis = chatGeschiedenis.slice(-20);
+
+    const resp = await fetch(GEMINI_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: chatGeschiedenis,
+        systemInstruction: { parts: [{ text: systeemPrompt }] },
+        generationConfig: { maxOutputTokens: 350, temperature: 0.7 }
+      })
+    });
+    if (!resp.ok) throw new Error(resp.status);
+    const data = await resp.json();
+    const antwoord = data.candidates[0].content.parts[0].text.trim();
+    chatGeschiedenis.push({ role: "model", parts: [{ text: antwoord }] });
+    return antwoord;
+  }
+
+  async function verstuur() {
     const txt = input.value.trim();
     if (!txt) return;
     addUserMsg(txt);
     input.value = "";
     toonTyping();
-    setTimeout(() => {
+    try {
+      const antwoord = await vraagGemini(txt);
       verwijderTyping();
+      addBotMsg(antwoord);
+    } catch(err) {
+      verwijderTyping();
+      // Fallback op rule-based als API niet bereikbaar is
       addBotMsg(berekenAntwoord(txt));
-    }, 600 + Math.random() * 500);
+    }
   }
 
   input.addEventListener("keydown", e => { if (e.key === "Enter") verstuur(); });
