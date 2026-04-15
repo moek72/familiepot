@@ -481,6 +481,11 @@ button:active { transform: scale(0.96); }
         <div class="inputGroup"><label>Kinderpot uitbetaling per kind per jaar (€)</label><input type="number" step="0.01" id="setKidPayout" placeholder="240.00"></div>
         <div class="inputGroup"><label>Betaallink Familiepot</label><textarea id="setLinkFam" rows="2"></textarea></div>
         <div class="inputGroup"><label>Betaallink Kinderpot</label><textarea id="setLinkKid" rows="2"></textarea></div>
+        <div class="inputGroup" style="margin-top:16px;border-top:1px solid rgba(255,255,255,0.1);padding-top:16px;">
+          <label style="color:#e879f9;">🤖 Gemini AI-sleutel (voor chatbot)</label>
+          <input type="password" id="setGeminiKey" placeholder="AIzaSy..." style="font-family:monospace;font-size:13px;">
+          <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:4px;">Wordt lokaal opgeslagen, staat niet in de broncode.</div>
+        </div>
       </div>
     </div>
   </div>
@@ -1146,6 +1151,7 @@ function loadSettings() {
   q("setKidPayout").value = s.mins.kidPayout || DEFAULT_KID_PAYOUT;
   q("setLinkFam").value = s.links.familie;
   q("setLinkKid").value = s.links.kinder;
+  q("setGeminiKey").value = localStorage.getItem("gemini_api_key") || "";
 }
 q("saveSettingsBtn").onclick = () => {
   const s = appState;
@@ -1155,6 +1161,8 @@ q("saveSettingsBtn").onclick = () => {
   s.mins.kidPayout = parseFloat(q("setKidPayout").value) || DEFAULT_KID_PAYOUT;
   s.links.familie = q("setLinkFam").value.trim();
   s.links.kinder = q("setLinkKid").value.trim();
+  const gemKey = q("setGeminiKey").value.trim();
+  if (gemKey) localStorage.setItem("gemini_api_key", gemKey);
   saveCloud();
   alert("Opgeslagen!");
   render();
@@ -1255,16 +1263,7 @@ startGate.style.display = "flex";
     input.focus();
     if (!gestart) {
       gestart = true;
-      addBotMsg("Hoi Gaby! 👋 Ik ben het, Moek.\n\nWat wil je weten? Tik op een knop of typ gewoon je vraag:");
-      addSuggestions([
-        "Hoe staat de kinderpot?",
-        "Hoe staat de familiepot?",
-        "Wie heeft nog niet betaald?",
-        "Wanneer is de volgende verjaardag?",
-        "Wat is er al uitbetaald?",
-        "Geef me een overzicht van het jaar",
-        "Waarom staat de pot min?"
-      ]);
+      addBotMsg("Hoi Gaby! 👋 Ik ben het, Moek.\n\nTyp gewoon je vraag over de pot, dan reken ik het voor je uit!");
     }
   }
   function closeChat() { win.classList.remove("open"); }
@@ -1337,8 +1336,9 @@ startGate.style.display = "flex";
   function verwijderTyping() { const t = q("chatTyping"); if (t) t.remove(); }
 
   // === GEMINI API ===
-  const GEMINI_KEY = "AIzaSyBepV6OHYgu4-uigxZdn52V0jywww93oK8";
-  const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`;
+  // Sleutel wordt opgeslagen in localStorage — nooit in de broncode
+  function getGeminiKey() { return localStorage.getItem("gemini_api_key") || ""; }
+  function getGeminiUrl(k) { return `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${k}`; }
   let chatGeschiedenis = [];
 
   function bouwContext() {
@@ -1394,7 +1394,11 @@ ${context}
 
 Vraag van Gaby: ${vraag}`;
 
-    const resp = await fetch(GEMINI_URL, {
+    const key = getGeminiKey();
+    if (!key) {
+      throw new Error("Geen API-sleutel ingesteld. Voer hem in via ⚙️ Instellingen → Gemini API-sleutel.");
+    }
+    const resp = await fetch(getGeminiUrl(key), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -1588,16 +1592,10 @@ Vraag van Gaby: ${vraag}`;
       return `Stuur Moek even een appje:\n\n👉 <a href="${MOEK_WA}" target="_blank" style="color:#e879f9;font-weight:800;">App Moek op WhatsApp</a>\n\nOf bel: <a href="tel:+31653694678" style="color:#e879f9;font-weight:800;">06-53694678</a>`;
     }
 
-    // Slimme fallback: geef altijd een overzicht + snelknoppen
+    // Fallback
     const k = kidSaldo(cy, cm);
     const f = famSaldo(cy, cm);
-    setTimeout(() => addSuggestions([
-      "Hoe staat de kinderpot?",
-      "Hoe staat de familiepot?",
-      "Wie heeft nog niet betaald?",
-      "Geef me een overzicht van het jaar"
-    ]), 50);
-    return `Ik snap de vraag even niet helemaal 😅, maar hier is de huidige stand:\n\n💜 Kinderpot: ${euro(k.netto)}\n💙 Familiepot: ${euro(f.ingelegd)} ingelegd\n\nKies hieronder of tik Moek aan:`;
+    return `Ik snap de vraag even niet helemaal 😅\n\nHuidige stand:\n💜 Kinderpot: ${euro(k.netto)}\n💙 Familiepot: ${euro(f.ingelegd)} ingelegd`;
   }
 })();
 </script>
