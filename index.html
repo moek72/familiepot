@@ -1379,28 +1379,26 @@ BEDRAGEN: familiepot €${appState.mins.fam}/mnd per koppel, €${appState.mins.
   }
 
   async function vraagGemini(vraag) {
-    const systeemPrompt = `Je bent Moek, de broer/vriend die de familiepot beheert voor 8 families. Je helpt Gaby — ze is de financieel beheerder maar niet technisch. Ze stelt vragen heel direct en gewoon, soms met een tikfout of in losse woorden.
+    const context = bouwContext();
+    const volledigeVraag = `Je bent Moek, de beheerder van de familiepot voor 8 families. Je helpt Gaby — niet technisch, stelt vragen direct en gewoon, soms met een tikfout.
 
 Regels:
-- Antwoord in kort, vriendelijk en gewoon Nederlands (max 6 regels)
-- Gebruik de echte bedragen en namen uit de pot-gegevens hieronder
-- Als de pot negatief staat: leg rustig uit dat dit normaal is na verjaardagen
-- Geen technisch jargon, geen opsommingstekens tenzij het echt duidelijker wordt
-- Sluit soms af met een kort bemoedigend zinnetje
-- Als Gaby iets vraagt dat niets met de pot te maken heeft, zeg dan: "Haha, dat weet ik niet 😄 Vraag dat lekker aan ChatGPT → chatgpt.com"
+- Antwoord kort en vriendelijk in gewoon Nederlands (max 6 regels)
+- Gebruik de echte bedragen en namen hieronder
+- Als de pot negatief staat: leg uit dat dit normaal is na verjaardagen
+- Geen jargon
+- Als de vraag niets met de pot te maken heeft: "Haha, dat weet ik niet 😄 Vraag dat lekker aan ChatGPT → chatgpt.com"
 
 ACTUELE POT-GEGEVENS:
-${bouwContext()}`;
+${context}
 
-    chatGeschiedenis.push({ role: "user", parts: [{ text: vraag }] });
-    if (chatGeschiedenis.length > 20) chatGeschiedenis = chatGeschiedenis.slice(-20);
+Vraag van Gaby: ${vraag}`;
 
     const resp = await fetch(GEMINI_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        contents: chatGeschiedenis,
-        systemInstruction: { parts: [{ text: systeemPrompt }] },
+        contents: [{ role: "user", parts: [{ text: volledigeVraag }] }],
         generationConfig: { maxOutputTokens: 350, temperature: 0.7 }
       })
     });
@@ -1410,7 +1408,6 @@ ${bouwContext()}`;
     }
     const data = await resp.json();
     const antwoord = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "(leeg antwoord)";
-    chatGeschiedenis.push({ role: "model", parts: [{ text: antwoord }] });
     return antwoord;
   }
 
